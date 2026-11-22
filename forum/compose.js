@@ -16,7 +16,9 @@ const category=document.querySelector('#forum-category'),title=document.querySel
 const message=document.querySelector('#forum-message');
 const categoryField=document.querySelector('#category-label'),titleField=document.querySelector('#title-label');
 const postButton=document.querySelector('#forum-submit');
-let bearer=null,username=null,ready=!(replyId||reportId),availableCategories=[];
+let bearer=null,username=null,ready=!(replyId||reportId),availableCategories=[],pendingPublish=false;
+function updateCounter(){const target=document.querySelector('#forum-message-counter');if(target)target.textContent=message.value.length+' / '+message.maxLength+' characters';}
+message.addEventListener('input',updateCounter);
 function status(el,message){el.textContent=message;}
 async function request(path,method='GET',payload=null,token=null){
  const options={method,credentials:'omit',redirect:'error',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)};
@@ -56,6 +58,9 @@ async function initialize(){
    message.setAttribute('maxlength','8000');
    ready=true;
   }
+  editor.insertAdjacentElement('afterend',loginPanel);
+  editor.hidden=false;loginPanel.hidden=true;
+  updateCounter();
  }catch(error){ready=false;status(loginStatus,'The forum is unavailable: '+error.message);}
 }
 loginForm.addEventListener('submit',async event=>{
@@ -71,7 +76,8 @@ loginForm.addEventListener('submit',async event=>{
   bearer=credentials.accessToken;
   username=typeof credentials.username==='string'?credentials.username:name;
   document.querySelector('#forum-signed-in').textContent='SIGNED IN AS '+username;
-  loginPanel.hidden=true;editor.hidden=false;message.focus();
+  loginPanel.hidden=true;editor.hidden=false;
+  if(pendingPublish){pendingPublish=false;postForm.requestSubmit();}else message.focus();
   status(loginStatus,'');
  }catch(error){
   bearer=null;
@@ -83,7 +89,14 @@ loginForm.addEventListener('submit',async event=>{
 });
 postForm.addEventListener('submit',async event=>{
  event.preventDefault();
- if(!bearer||!ready){status(postStatus,'Please sign in first.');return;}
+ if(!ready){status(postStatus,'The forum is still loading. Try again shortly.');return;}
+ if(!bearer){
+  pendingPublish=true;loginPanel.hidden=false;
+  status(postStatus,'Sign in below to finish publishing. Your draft is preserved.');
+  loginPanel.scrollIntoView({behavior:'smooth',block:'center'});
+  document.querySelector('#forum-username').focus();
+  return;
+ }
  const button=document.querySelector('#forum-submit');
  const payload=reportId?{topicId:reportId,...(reportReplyId?{replyId:reportReplyId}:{}),reason:message.value.trim()}:replyId?{body:message.value.trim()}:{category:category.value,title:title.value.trim(),body:message.value.trim()};
  if(!replyId&&!reportId&&!availableCategories.some(c=>c.id===category.value)){status(postStatus,'Choose an available forum category.');return;}
@@ -100,12 +113,28 @@ postForm.addEventListener('submit',async event=>{
   status(postStatus,reportId?'Report received privately. Returning to discussion…':'Published. Opening your topic…');
   location.assign('/forum/?topic='+encodeURIComponent(id));
  }catch(error){
-  if(/expired|revoked|authentication required|401/i.test(error.message)){bearer=null;loginPanel.hidden=false;editor.hidden=true;}
+  if(/expired|revoked|authentication required|401/i.test(error.message)){bearer=null;pendingPublish=false;loginPanel.hidden=false;editor.hidden=false;}
   status(postStatus,error.message||'Unable to publish. Please try again.');
   button.disabled=false;
  }
 });
 function passwordInputClear(){const input=document.querySelector('#forum-password');if(input)input.value='';}
-window.addEventListener('pagehide',()=>{bearer=null;passwordInputClear();});
+const related=document.querySelector('#forum-related-topics');let suggestionTimer=null,suggestionNumber=0;
+title.addEventListener('input',()=>{
+ clearTimeout(suggestionTimer);const text=title.value.trim(),ticket=++suggestionNumber;
+ if(replyId||reportId||text.length<6){related.hidden=true;related.replaceChildren();return;}
+ suggestionTimer=setTimeout(async()=>{
+  try{
+   const result=await request('/api/forum/topics?page=1&sort=latest&q='+encodeURIComponent(text.slice(0,100)));
+   if(ticket!==suggestionNumber)return;
+   const items=result.items?.filter(t=>t.title.toLowerCase()!==text.toLowerCase()).slice(0,4)||[];
+   if(!items.length){related.hidden=true;related.replaceChildren();return;}
+   const label=document.createElement('strong');label.textContent='SIMILAR DISCUSSIONS';
+   const links=items.map(item=>{const a=document.createElement('a');a.href='/forum/?topic='+encodeURIComponent(item.id);a.textContent=item.title;return a;});
+   related.replaceChildren(label,...links);related.hidden=false;
+  }catch{if(ticket===suggestionNumber)related.hidden=true;}
+ },450);
+});
+window.addEventListener('pagehide',()=>{bearer=null;passwordInputClear();clearTimeout(suggestionTimer);});
 void initialize();
 })();
