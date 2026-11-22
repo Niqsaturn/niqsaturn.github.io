@@ -2,8 +2,12 @@
 'use strict';
 const BASE='https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
 const params=new URLSearchParams(location.search);
+const reportRaw=params.get('report');
+const reportId=reportRaw&&/^[1-9]\d{0,7}$/.test(reportRaw)?Number(reportRaw):null;
+const replyRaw=params.get('reply');
+const reportReplyId=reportId&&replyRaw&&/^[1-9]\d{0,7}$/.test(replyRaw)?Number(replyRaw):null;
 const raw=params.get('topic');
-const replyId=raw&&/^[1-9]\d{0,7}$/.test(raw)?Number(raw):null;
+const replyId=!reportId&&raw&&/^[1-9]\d{0,7}$/.test(raw)?Number(raw):null;
 const categoryId=params.get('category')||'general';
 const loginForm=document.querySelector('#login-form'),postForm=document.querySelector('#post-form');
 const loginPanel=document.querySelector('#login-section'),editor=document.querySelector('#editor-section');
@@ -12,7 +16,7 @@ const category=document.querySelector('#forum-category'),title=document.querySel
 const message=document.querySelector('#forum-message');
 const categoryField=document.querySelector('#category-label'),titleField=document.querySelector('#title-label');
 const postButton=document.querySelector('#forum-submit');
-let bearer=null,username=null,ready=!replyId,availableCategories=[];
+let bearer=null,username=null,ready=!(replyId||reportId),availableCategories=[];
 function status(el,message){el.textContent=message;}
 async function request(path,method='GET',payload=null,token=null){
  const options={method,credentials:'omit',redirect:'error',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)};
@@ -29,7 +33,16 @@ async function initialize(){
   availableCategories=categories.categories.filter(x=>x.postable);
   for(const c of availableCategories){const option=document.createElement('option');option.value=c.id;option.textContent=c.name;category.append(option);}
   category.value=availableCategories.some(x=>x.id===categoryId)?categoryId:'general';
-  if(replyId){
+  if(reportId){
+   const response=await request('/api/forum/topics/'+reportId);
+   document.querySelector('#editor-heading').textContent='REPORT: '+response.topic.title;
+   document.querySelector('#login-heading').textContent='SIGN IN TO REPORT';
+   titleField.hidden=true;categoryField.hidden=true;
+   message.setAttribute('minlength','20');message.setAttribute('maxlength','600');
+   message.placeholder='Explain the problem and why it requires moderation. Never include account passwords or other private information.';
+   postButton.textContent='SEND PRIVATE REPORT';
+   ready=true;
+  }else if(replyId){
    const response=await request('/api/forum/topics/'+replyId);
    if(response.topic.state!=='open')throw Error('This topic is not accepting replies.');
    document.querySelector('#editor-heading').textContent='REPLY TO: '+response.topic.title;
@@ -72,18 +85,19 @@ postForm.addEventListener('submit',async event=>{
  event.preventDefault();
  if(!bearer||!ready){status(postStatus,'Please sign in first.');return;}
  const button=document.querySelector('#forum-submit');
- const payload=replyId?{body:message.value.trim()}:{category:category.value,title:title.value.trim(),body:message.value.trim()};
- if(!replyId&&!availableCategories.some(c=>c.id===category.value)){status(postStatus,'Choose an available forum category.');return;}
+ const payload=reportId?{topicId:reportId,...(reportReplyId?{replyId:reportReplyId}:{}),reason:message.value.trim()}:replyId?{body:message.value.trim()}:{category:category.value,title:title.value.trim(),body:message.value.trim()};
+ if(!replyId&&!reportId&&!availableCategories.some(c=>c.id===category.value)){status(postStatus,'Choose an available forum category.');return;}
  button.disabled=true;
- status(postStatus,'Publishing your discussion…');
+ status(postStatus,reportId?'Submitting your private report…':'Publishing your discussion…');
  try{
-  const endpoint=replyId?'/api/forum/topics/'+replyId+'/replies':'/api/forum/topics';
+  const endpoint=reportId?'/api/forum/reports':replyId?'/api/forum/topics/'+replyId+'/replies':'/api/forum/topics';
   const data=await request(endpoint,'POST',payload,bearer);
-  const id=replyId||data.topic?.id;
+  if(reportId&&data.report?.received!==true)throw Error('The report was not accepted.');
+  const id=reportId||replyId||data.topic?.id;
   if(!id)throw Error('The forum did not return a topic ID.');
   bearer=null;
   passwordInputClear();
-  status(postStatus,'Published. Opening your topic…');
+  status(postStatus,reportId?'Report received privately. Returning to discussion…':'Published. Opening your topic…');
   location.assign('/forum/?topic='+encodeURIComponent(id));
  }catch(error){
   if(/expired|revoked|authentication required|401/i.test(error.message)){bearer=null;loginPanel.hidden=false;editor.hidden=true;}
