@@ -1,0 +1,10 @@
+/* AdSense placements: clearly separated from navigation, forms, and game download controls. */
+.enroute-ad-slot{width:100%;box-sizing:border-box;max-width:1180px;margin:56px auto;padding:16px 26px 12px;border-top:1px solid rgba(201,217,250,.15);color:#8d9db7;clear:both}
+.enroute-ad-slot[hidden]{display:none!important}
+.enroute-ad-label{font:600 10px/1.4 system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase;text-align:center;margin:0 0 14px;color:#9da9bb}
+.enroute-ad-slot .adsbygoogle{display:block;width:100%;min-width:0}
+.enroute-ad-slot--feed{max-width:1020px;margin-top:76px;margin-bottom:64px}
+.enroute-ad-slot--forum-top{margin-top:26px;margin-bottom:24px}
+.enroute-ad-slot--forum-bottom{margin-top:35px;margin-bottom:72px}
+@media(max-width:650px){.enroute-ad-slot{padding:13px 16px 8px;margin-top:36px;margin-bottom:34px}.enroute-ad-slot--forum-top{margin-top:14px;margin-bottom:15px}.enroute-ad-slot--feed{margin-top:45px}}
+@media(prefers-reduced-motion:reduce){.enroute-ad-slot{scroll-behavior:auto}}
