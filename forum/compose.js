@@ -1,0 +1,97 @@
+(() => {
+'use strict';
+const BASE='https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
+const params=new URLSearchParams(location.search);
+const raw=params.get('topic');
+const replyId=raw&&/^[1-9]\d{0,7}$/.test(raw)?Number(raw):null;
+const categoryId=params.get('category')||'general';
+const loginForm=document.querySelector('#login-form'),postForm=document.querySelector('#post-form');
+const loginPanel=document.querySelector('#login-section'),editor=document.querySelector('#editor-section');
+const loginStatus=document.querySelector('#login-status'),postStatus=document.querySelector('#post-status');
+const category=document.querySelector('#forum-category'),title=document.querySelector('#forum-title');
+const message=document.querySelector('#forum-message');
+const categoryField=document.querySelector('#category-label'),titleField=document.querySelector('#title-label');
+const postButton=document.querySelector('#forum-submit');
+let bearer=null,username=null,ready=!replyId,availableCategories=[];
+function status(el,message){el.textContent=message;}
+async function request(path,method='GET',payload=null,token=null){
+ const options={method,credentials:'omit',redirect:'error',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)};
+ if(method==='POST'){options.headers['Content-Type']='application/json';options.body=JSON.stringify(payload);}
+ if(token)options.headers.Authorization='Bearer '+token;
+ const response=await fetch(BASE+path,options);
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(String(data.error||'Request rejected ('+response.status+')'));
+ return data;
+}
+async function initialize(){
+ try{
+  const categories=await request('/api/forum/categories');
+  availableCategories=categories.categories.filter(x=>x.postable);
+  for(const c of availableCategories){const option=document.createElement('option');option.value=c.id;option.textContent=c.name;category.append(option);}
+  category.value=availableCategories.some(x=>x.id===categoryId)?categoryId:'general';
+  if(replyId){
+   const response=await request('/api/forum/topics/'+replyId);
+   if(response.topic.state!=='open')throw Error('This topic is not accepting replies.');
+   document.querySelector('#editor-heading').textContent='REPLY TO: '+response.topic.title;
+   titleField.hidden=true;categoryField.hidden=true;
+   message.setAttribute('minlength','3');
+   message.setAttribute('maxlength','4000');
+   postButton.textContent='PUBLISH REPLY';
+   ready=true;
+  }else{
+   message.setAttribute('minlength','20');
+   message.setAttribute('maxlength','8000');
+   ready=true;
+  }
+ }catch(error){ready=false;status(loginStatus,'The forum is unavailable: '+error.message);}
+}
+loginForm.addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!ready){status(loginStatus,'Forum is not yet ready. Please try reloading.');return;}
+ const button=document.querySelector('#forum-login'),userInput=document.querySelector('#forum-username'),passwordInput=document.querySelector('#forum-password');
+ const name=userInput.value.trim(),password=passwordInput.value;
+ button.disabled=true;status(loginStatus,'Checking your En-Route account…');
+ try{
+  const credentials=await request('/api/auth/login','POST',{username:name,password});
+  if(typeof credentials.accessToken!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(credentials.accessToken))
+   throw Error('Could not establish an authenticated session.');
+  bearer=credentials.accessToken;
+  username=typeof credentials.username==='string'?credentials.username:name;
+  document.querySelector('#forum-signed-in').textContent='SIGNED IN AS '+username;
+  loginPanel.hidden=true;editor.hidden=false;message.focus();
+  status(loginStatus,'');
+ }catch(error){
+  bearer=null;
+  status(loginStatus,error.message||'Unable to sign in. Please verify your account details.');
+ }finally{
+  passwordInput.value='';
+  button.disabled=false;
+ }
+});
+postForm.addEventListener('submit',async event=>{
+ event.preventDefault();
+ if(!bearer||!ready){status(postStatus,'Please sign in first.');return;}
+ const button=document.querySelector('#forum-submit');
+ const payload=replyId?{body:message.value.trim()}:{category:category.value,title:title.value.trim(),body:message.value.trim()};
+ if(!replyId&&!availableCategories.some(c=>c.id===category.value)){status(postStatus,'Choose an available forum category.');return;}
+ button.disabled=true;
+ status(postStatus,'Publishing your discussion…');
+ try{
+  const endpoint=replyId?'/api/forum/topics/'+replyId+'/replies':'/api/forum/topics';
+  const data=await request(endpoint,'POST',payload,bearer);
+  const id=replyId||data.topic?.id;
+  if(!id)throw Error('The forum did not return a topic ID.');
+  bearer=null;
+  passwordInputClear();
+  status(postStatus,'Published. Opening your topic…');
+  location.assign('/forum/?topic='+encodeURIComponent(id));
+ }catch(error){
+  if(/expired|revoked|authentication required|401/i.test(error.message)){bearer=null;loginPanel.hidden=false;editor.hidden=true;}
+  status(postStatus,error.message||'Unable to publish. Please try again.');
+  button.disabled=false;
+ }
+});
+function passwordInputClear(){const input=document.querySelector('#forum-password');if(input)input.value='';}
+window.addEventListener('pagehide',()=>{bearer=null;passwordInputClear();});
+void initialize();
+})();
