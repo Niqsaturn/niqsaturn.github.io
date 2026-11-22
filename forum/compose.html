@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://en-route.ringtail-anoles.ts.net:8443; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'self'">
+<meta name="theme-color" content="#080e1b">
+<title>Post to En-Route Community</title>
+<link rel="icon" href="/assets/crown.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/forum/forum.css">
+<style>
+.compose-wrap{max-width:720px;padding:34px 0 110px}.compose-back{font-size:12px;font-weight:850;color:#e4c784}.compose-wrap h1{font-size:clamp(34px,6vw,58px);letter-spacing:-.055em;line-height:1.08;margin:22px 0 10px}.compose-wrap h1 span{color:#eed18f}.compose-lead{color:#abbcd5;line-height:1.8;font-size:13px;max-width:620px;margin:0 0 28px}.compose-card{background:#111b2d;border:1px solid #acbbd747;border-radius:13px;padding:27px;margin:18px 0}.compose-card h2{font-size:21px;letter-spacing:-.03em;margin:0 0 8px}.compose-card p{font-size:12px;line-height:1.75;color:#afc0d5}.compose-card form{display:grid;gap:14px;margin-top:23px}.compose-card label{color:#ead5a1;font-size:11px;font-weight:850;letter-spacing:.04em}.compose-card input,.compose-card select,.compose-card textarea{display:block;background:#091426;color:#f4f6fc;border:1px solid #8d9dbf70;border-radius:8px;padding:12px 14px;font:14px/1.5 system-ui;width:100%;margin-top:7px}.compose-card textarea{min-height:200px;resize:vertical}.compose-card input:focus-visible,.compose-card select:focus-visible,.compose-card textarea:focus-visible,.compose-card button:focus-visible{outline:3px solid #dabc82;outline-offset:2px}.compose-card button{background:linear-gradient(115deg,#f4e2b1,#cda667);border:0;color:#171b23;border-radius:8px;min-height:45px;padding:12px 17px;font-size:12px;font-weight:950;letter-spacing:.08em;cursor:pointer}.compose-card button:disabled{opacity:.5;cursor:wait}.compose-status{min-height:24px;color:#efddad;font-size:12px;line-height:1.6}.compose-note{color:#99aabd!important;border-left:2px solid #b7a071;padding-left:14px}.compose-active{font-weight:850;color:#b7e0ce;font-size:12px}.compose-wrap [hidden]{display:none!important}.compose-wrap .compose-link{color:#e8c98a;text-decoration:underline}
+@media(max-width:640px){.compose-wrap{padding-top:20px}.compose-card{padding:19px}}
+</style>
+<script defer src="/forum/compose.js"></script>
+</head>
+<body class="community-body">
+<a class="skip" href="#compose">Skip to posting form</a>
+<header class="header"><div class="header-inner">
+<a class="logo" href="/" aria-label="En-Route homepage"><span class="logo-mark" aria-hidden="true">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
+<nav aria-label="Main navigation"><a href="/">Home</a><a href="/#modes">Game modes</a><a href="/forum/">Community forums</a></nav>
+</div></header>
+<main id="compose" class="wrap compose-wrap">
+<a class="compose-back" href="/forum/">← BACK TO COMMUNITY</a>
+<p class="section-kicker" style="margin-top:32px">NIQSATURN / COMMUNITY</p>
+<h1>TAKE THE <span>FLOOR.</span></h1>
+<p class="compose-lead">Share ideas, ask questions, and reply to other players. Posting uses the same En-Route account as the Windows game. Your credentials are handled by the account API over HTTPS.</p>
+<section class="compose-card" id="login-section" aria-labelledby="login-heading">
+<h2 id="login-heading">SIGN IN TO POST</h2>
+<p>Forum discussions are public, but posting requires your En-Route game account. This secure sign-in screen does not load advertising or other third-party scripts.</p>
+<form id="login-form">
+<label>Username<input id="forum-username" name="username" required minlength="3" maxlength="24" autocomplete="username" spellcheck="false"></label>
+<label>Password<input id="forum-password" name="password" type="password" required autocomplete="current-password"></label>
+<button id="forum-login" type="submit">SIGN IN SECURELY</button>
+</form>
+<div class="compose-status" id="login-status" role="status" aria-live="polite"></div>
+<p class="compose-note">Need an account? <a class="compose-link" href="/#signup">Create one on the official website</a>. Your credentials are not saved in browser storage on this page.</p>
+</section>
+<section class="compose-card" id="editor-section" aria-labelledby="editor-heading" hidden>
+<h2 id="editor-heading">NEW DISCUSSION</h2>
+<p class="compose-active" id="forum-signed-in"></p>
+<form id="post-form">
+<label id="category-label">FORUM CATEGORY<select id="forum-category" name="category" required></select></label>
+<label id="title-label">TOPIC TITLE<input id="forum-title" name="title" required minlength="8" maxlength="120" placeholder="Give your discussion a specific title"></label>
+<label>YOUR MESSAGE<textarea id="forum-message" name="body" required maxlength="8000" placeholder="Share your question, idea, or experience. Avoid private account details."></textarea></label>
+<button id="forum-submit" type="submit">PUBLISH TO THE FORUM</button>
+</form>
+<div class="compose-status" id="post-status" role="status" aria-live="polite"></div>
+<p class="compose-note">Posts are public, subject to moderation, and forwarded to the private En-Route feedback review queue. Do not post passwords, verification codes, private logs, or sensitive account details.</p>
+</section>
+</main>
+<footer class="footer wrap forum-footer"><span><strong>EN-ROUTE</strong> / COMMUNITY</span><span>© 2026 NIQSATURN</span><a href="/privacy.html">PRIVACY</a></footer>
+</body>
+</html>
