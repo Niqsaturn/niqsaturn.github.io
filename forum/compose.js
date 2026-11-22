@@ -39,7 +39,7 @@ async function initialize(){
    const response=await request('/api/forum/topics/'+reportId);
    document.querySelector('#editor-heading').textContent='REPORT: '+response.topic.title;
    document.querySelector('#login-heading').textContent='SIGN IN TO REPORT';
-   titleField.hidden=true;categoryField.hidden=true;
+   titleField.hidden=true;categoryField.hidden=true;title.required=false;category.required=false;
    message.setAttribute('minlength','20');message.setAttribute('maxlength','600');
    message.placeholder='Explain the problem and why it requires moderation. Never include account passwords or other private information.';
    postButton.textContent='SEND PRIVATE REPORT';
@@ -48,7 +48,7 @@ async function initialize(){
    const response=await request('/api/forum/topics/'+replyId);
    if(response.topic.state!=='open')throw Error('This topic is not accepting replies.');
    document.querySelector('#editor-heading').textContent='REPLY TO: '+response.topic.title;
-   titleField.hidden=true;categoryField.hidden=true;
+   titleField.hidden=true;categoryField.hidden=true;title.required=false;category.required=false;
    message.setAttribute('minlength','3');
    message.setAttribute('maxlength','4000');
    postButton.textContent='PUBLISH REPLY';
