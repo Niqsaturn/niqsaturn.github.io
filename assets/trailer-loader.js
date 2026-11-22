@@ -5,7 +5,7 @@
   if (!player) return;
   // Keep the local, editable Windows draft functional without an HTTP server.
   if (location.protocol === 'file:') {
-    player.src = '/En-Route/assets/enroute-blitzkrieg-trailer-v0.2.20.mp4';
+    player.src = 'https://raw.githubusercontent.com/Niqsaturn/En-Route/gh-pages/assets/enroute-blitzkrieg-trailer-v0.2.20.mp4';
     player.load();
     return;
   }
@@ -15,11 +15,11 @@
     inFlight = (async () => {
       try {
         if (status) status.textContent = 'Loading trailer with original music…';
-        const manifestResponse = await fetch('/En-Route/assets/trailer-parts/manifest.json', { cache: 'force-cache' });
+        const manifestResponse = await fetch('https://raw.githubusercontent.com/Niqsaturn/En-Route/gh-pages/assets/trailer-parts/manifest.json', { cache: 'force-cache' });
         if (!manifestResponse.ok) throw new Error('Trailer manifest unavailable');
         const manifest = await manifestResponse.json();
         const chunks = await Promise.all(manifest.parts.map(async part => {
-          const response = await fetch('/En-Route/assets/trailer-parts/' + part.file, { cache: 'force-cache' });
+          const response = await fetch('https://raw.githubusercontent.com/Niqsaturn/En-Route/gh-pages/assets/trailer-parts/' + part.file, { cache: 'force-cache' });
           if (!response.ok) throw new Error('Trailer part unavailable');
           const data = await response.arrayBuffer();
           if (data.byteLength !== part.bytes) throw new Error('Trailer part is incomplete');
