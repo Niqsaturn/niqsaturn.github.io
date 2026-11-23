@@ -98,12 +98,13 @@
     finally { buttons(verifyForm, false); }
   });
   document.getElementById('resend-verify')?.addEventListener('click', async event => {
-    event.currentTarget.disabled = true;
+    const resendButton = event.currentTarget;
+    resendButton.disabled = true;
     try {
       await api('resend', {});
       display('If this request is eligible, another verification email is on its way.');
     } catch (error) { display(friendly(error, 'Resend unavailable.')); }
-    finally { setTimeout(() => { event.currentTarget.disabled = false; }, 60000); }
+    finally { setTimeout(() => { resendButton.disabled = false; }, 60000); }
   });
   document.getElementById('restart-signup')?.addEventListener('click', () => {
     sessionStorage.removeItem(KEY);
