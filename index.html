@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="./styles.css">
 <link rel="stylesheet" href="./assets/ad-placements.css">
 <script defer src="./assets/trailer-loader.js"></script>
-<script defer src="./assets/account-signup.js"></script>
+
 <meta name="color-scheme" content="dark">
 </head>
 <body>
@@ -28,7 +28,7 @@
 <header class="header">
  <div class="header-inner">
   <a class="logo" href="#top" aria-label="En-Route Blitzkrieg home"><span class="logo-mark">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
-  <nav aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a><a href="#signup">Create account</a></nav>
+  <nav aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a><a href="#signup">Create account</a><a href="/account/ad-free.html">Member ad-free</a></nav>
   <span class="version">GAME BUILD 0.2.21</span>
  </div>
 </header>
@@ -69,27 +69,11 @@
   </div>
  </section>
  <section id="signup" class="signup wrap" aria-labelledby="signup-title">
-  <div class="signup-heading"><div><p class="section-kicker">ONE ACCOUNT · THREE WORLDS</p><h2 id="signup-title">YOUR STORY<br><span>STARTS HERE.</span></h2><p>Create your free En-Route account right here. Verify your email, then sign in through the Windows launcher when you are ready to play.</p></div><div class="signup-promise"><strong>EVERY MOVE COUNTS</strong><p>Your account follows you across Blitzkrieg, Ulti and Board-Cr-ft. Registration is free; your game experience, progression, and account settings remain in the Windows client.</p></div></div>
-  <div class="signup-card">
-   <div class="signup-card-head"><span>FREE ACCOUNT</span><span>EMAIL VERIFICATION</span></div>
-   <form id="signup-form" class="signup-form" autocomplete="on">
-    <div class="signup-field"><label for="register-name">Username</label><input id="register-name" name="username" type="text" autocomplete="username" minlength="3" maxlength="24" required spellcheck="false" placeholder="Your court name"></div>
-    <div class="signup-field"><label for="register-email">Email address</label><input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></div>
-    <div class="signup-field"><label for="register-password">Password <small>15 or more characters</small></label><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="15" maxlength="128" required></div>
-    <div class="signup-field"><label for="register-confirm">Confirm password</label><input id="register-confirm" name="passwordConfirmation" type="password" autocomplete="new-password" minlength="15" maxlength="128" required></div>
-    <button type="submit" class="signup-submit">EMAIL ME A VERIFICATION CODE</button>
-    <p class="signup-legal">Your email is used for account verification and recovery. No payment information is collected here. Never share passwords or verification codes. <a href="./privacy.html">Privacy and account information</a>.</p>
-   </form>
-   <form id="verify-form" class="signup-form verify-form" hidden>
-    <h3>VERIFY YOUR EMAIL</h3><p>Enter the secure code from your En-Route verification email. It expires in 15 minutes.</p>
-    <div class="signup-field"><label for="verify-code">Verification code</label><input id="verify-code" name="code" type="text" minlength="43" maxlength="43" pattern="[A-Za-z0-9_-]{43}" autocomplete="one-time-code" spellcheck="false" required placeholder="Paste the code from your email"></div>
-    <button type="submit" class="signup-submit">VERIFY & CREATE ACCOUNT</button>
-    <button type="button" id="resend-verify" class="signup-link">Resend verification code</button>
-    <button type="button" id="restart-signup" class="signup-link">Start again</button>
-   </form>
-   <div class="signup-feedback" id="signup-feedback" role="status" aria-live="polite"></div>
-   <div id="signup-complete" class="signup-complete" hidden><strong>ACCOUNT VERIFIED</strong><p>Your En-Route account is ready. Open the Windows launcher and sign in with your username and password.</p><p class="signup-install-note">Get the free Windows portable ZIP using the large download link above, extract it fully, then open En-Route.exe. A signed Windows installer is not yet available.</p></div>
-  </div>
+  <div class="signup-heading"><div><p class="section-kicker">ONE ACCOUNT · THREE WORLDS</p><h2 id="signup-title">YOUR STORY<br><span>STARTS HERE.</span></h2>
+  <p>Create an account to play En-Route. Registration and email verification happen on a dedicated ad-free page.</p></div>
+  <div class="signup-promise"><strong>YOUR ACCOUNT STAYS PRIVATE</strong><p>Advertising cannot access the registration form or your login details. The Windows game uses the same En-Route account.</p></div></div>
+  <div class="cta-group"><a class="primary-cta" href="/register.html" aria-label="Create your free En-Route account on an ad-free page"><span class="cta-copy"><b>CREATE YOUR FREE ACCOUNT</b><small>SECURE · NO AD SCRIPTS</small></span><span class="cta-arrow" aria-hidden="true">↗</span></a>
+  <a class="text-action" href="/account/ad-free.html">Already a Royal Pass member? Verify ad-free access</a></div>
  </section>
  <section class="closing wrap" aria-labelledby="closing-title"><span class="crown" aria-hidden="true">♔</span><p class="section-kicker">THE NEXT MOVE IS YOURS</p><h2 id="closing-title">ENTER THE <span>BOARD.</span></h2><p>One launcher. Three tactical worlds. The next update is part of the journey.</p><a class="primary-cta closing-cta" href="https://en-route.ringtail-anoles.ts.net:8443/enroute-updates/En-Route-0.2.21.zip" aria-label="Download En-Route Blitzkrieg 0.2.21 portable Windows ZIP"><span class="win-icon" aria-hidden="true">↓</span><span class="cta-copy"><b>DOWNLOAD WINDOWS GAME</b><small>FREE · PORTABLE ZIP · VERSION 0.2.21</small></span><span class="cta-arrow" aria-hidden="true">↗</span></a></section>
  <aside class="enroute-ad-slot enroute-ad-slot--lower" data-adsterra-zone="home-after-download" aria-label="Advertisement" hidden>
