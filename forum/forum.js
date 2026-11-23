@@ -24,15 +24,11 @@ function url(r){const p=new URLSearchParams();if(r.topic){p.set('topic',r.topic)
 function adOverview(r){return !r.topic&&!r.category&&!r.q&&r.view==='categories';}
 function hideForumAds(){document.querySelectorAll('[data-forum-ad-placement]').forEach(x=>{x.hidden=true;});}
 function showForumAds(){
+ // Adsterra supplies a unique approved code for each zone. Until that code is
+ // installed and the zone has content, keep it hidden so no empty ad space appears.
  for(const box of document.querySelectorAll('[data-forum-ad-placement]')){
-  box.hidden=false;
-  if(box.dataset.adQueued==='true')continue;
-  box.dataset.adQueued='true';
-  requestAnimationFrame(()=>{
-   const unit=box.querySelector('ins.adsbygoogle');
-   if(!box.isConnected||box.hidden||!unit||unit.getBoundingClientRect().width<80){box.dataset.adQueued='';return;}
-   try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(_error){/* Ad blockers and inventory restrictions must not affect forum navigation. */}
-  });
+  const target=box.querySelector('[data-adsterra-mount]');
+  box.hidden=!(box.dataset.adsterraReady==='true'&&target&&target.childNodes.length>0);
  }
 }
 function go(r){
