@@ -25,13 +25,19 @@
    token=login.accessToken;
    if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))throw Error('Secure account session could not be established.');
    const ent=await json('/api/ads/status',{method:'GET',headers:{'Authorization':'Bearer '+token}});
-   if(ent.adFree===true&&typeof ent.receipt==='string'&&ent.receipt.length<200){
+   if(typeof ent.receipt==='string'&&/^v2\.[A-Za-z0-9_-]{70}$/.test(ent.receipt)){
     localStorage.setItem(KEY,ent.receipt);
-    status('Royal Pass active. Website and forum ads are off for this browser. Opening your page…');
+    status(ent.adFree===true?'Royal Pass active. Website and forum ads are off.':'Signed in. Royal Pass is optional.');
     location.assign(returnTo);return;
    }
+   if(ent.adFree===true&&typeof ent.receipt==='string'&&ent.receipt.length<200){
+    localStorage.setItem(KEY,ent.receipt);
+    location.assign(returnTo);return;
+   }
+   if(ent.adFree!==false)throw Error('Account advertising status is unavailable.');
    localStorage.removeItem(KEY);
-   status(ent.billingReady===false?'Signed in. Membership purchases are not active on this server yet; your free game account remains available.':'Signed in. This account has no active Royal Pass, so website ads may appear. You can continue playing for free.');
+   status(ent.billingReady===false?'Signed in. Membership purchases are not active yet.':'Signed in. You can continue with your free account.');
+   location.assign(returnTo);
   }catch(error){status(error?.message||'Account sign-in unavailable. Please try again.');}
   finally{token=null;password.value='';button.disabled=false;}
  });
