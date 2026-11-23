@@ -1,6 +1,6 @@
 (() => {
  'use strict';
- const API='https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
+ const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
  const form=document.querySelector('#member-auth-form');
  const result=document.querySelector('#member-result');
@@ -10,7 +10,7 @@
  const returnTo=new URLSearchParams(location.search).get('return')==='/forum/'?'/forum/':'/';
  const status=text=>{result.textContent=text;};
  async function json(url,options){
-  const response=await fetch(API+url,{credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(12000),...options});
+  const response=await fetch(API+(url.startsWith('/api/')?url.slice(4):url),{credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(12000),...options});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw Error(data.error||'Membership service unavailable ('+response.status+').');
   return data;
