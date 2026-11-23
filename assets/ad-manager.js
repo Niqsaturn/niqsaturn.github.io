@@ -4,7 +4,7 @@
  */
 (() => {
  'use strict';
- const ORIGIN='https://en-route.ringtail-anoles.ts.net:8443';
+ const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
  const CLASSIC='https://bellnewyork.org/22/';
  const NATIVE='https://bellnewyork.org/21/be1a8a1c143387189d74d1320ee44168';
@@ -31,7 +31,7 @@
   try{receipt=localStorage.getItem(KEY);}catch{return false;}
   if(!receipt)return true;
   try{
-   const response=await fetch(ORIGIN+'/enroute-account/api/ads/verify',{
+   const response=await fetch(API+'/ads/verify',{
     method:'POST',mode:'cors',credentials:'omit',redirect:'error',cache:'no-store',
     referrerPolicy:'no-referrer',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({receipt}),signal:AbortSignal.timeout(7000)
