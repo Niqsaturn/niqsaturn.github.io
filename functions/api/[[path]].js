@@ -13,6 +13,7 @@ const AUTH_GET=[/^\/ads\/status$/];
 const JSON_POST=[
  /^\/auth\/login$/,
  /^\/auth\/register$/,
+ /^\/auth\/register\/verify$/,
  /^\/auth\/verify$/,
  /^\/auth\/register\/resend$/,
  /^\/ads\/verify$/,
