@@ -23,7 +23,11 @@
  });
  let permission=null;
  let statusPromise=null;
- let loaded=false;
+ let checkedAt=0;
+ let checkInFlight=false;
+ let mountingEpoch=null;
+ const STATUS_INTERVAL=120000;
+ let refreshInFlight=false;
  // Invalidate all pending placements when the forum navigates away.
  let visibilityEpoch=0;
  function allZones(){return [...document.querySelectorAll('[data-adsterra-zone]')];}
@@ -40,13 +44,24 @@
    });
    if(!response.ok)return false; // If the service is unavailable, do not accidentally display ads to a member.
    const result=await response.json();
-   if(result.adFree===true)return false;
-   localStorage.removeItem(KEY);
-   return true;
+   if(result.adFree!==true&&result.adFree!==false)return false;
+   // Keep the opaque ad-only browser proof for free AND paid accounts.
+   // Never overwrite a different login or sign-out that occurred during fetch.
+   if(localStorage.getItem(KEY)!==receipt)return false;
+   if(typeof result.receipt==='string'&&/^v2\.[A-Za-z0-9_-]{70}$/.test(result.receipt)){
+    if(result.receipt!==receipt)localStorage.setItem(KEY,result.receipt);
+   }else if(result.adFree===false){
+    localStorage.removeItem(KEY);
+   }
+   return result.adFree===false;
   }catch{return false;}
  }
- function ensurePermission(){
-  if(!statusPromise)statusPromise=mayShowAds().then(result=>(permission=result),()=>(permission=false));
+ function ensurePermission(force=false){
+  if(checkInFlight)return statusPromise;
+  if(!force&&statusPromise&&Date.now()-checkedAt<STATUS_INTERVAL)return statusPromise;
+  checkInFlight=true;
+  statusPromise=mayShowAds().then(result=>(permission=result),()=>(permission=false))
+   .finally(()=>{checkedAt=Date.now();checkInFlight=false;});
   return statusPromise;
  }
  function eligible(box){
@@ -112,6 +127,9 @@
  }
  async function show(onlyForum=false){
   const epoch=visibilityEpoch;
+  if(mountingEpoch===epoch)return false;
+  mountingEpoch=epoch;
+  try{
   const routeAllowed=()=>{
    if(epoch!==visibilityEpoch)return false;
    if(onlyForum&&(!location.pathname.startsWith('/forum/')||location.search||
@@ -121,7 +139,10 @@
    return true;
   };
   if(!await ensurePermission()){
-   if(epoch===visibilityEpoch)reset();
+   if(epoch===visibilityEpoch){
+    const mounted=allZones().some(box=>box.querySelector('[data-adsterra-mount]')?.children.length);
+    if(mounted)hide();else reset();
+   }
    return false;
   }
   if(!routeAllowed())return false;
@@ -143,7 +164,8 @@
     if(!routeAllowed())return false;
    }
   }
-  loaded=true;return true;
+  return true;
+  }finally{if(mountingEpoch===epoch)mountingEpoch=null;}
  }
  function hide(){
   visibilityEpoch++;
@@ -158,7 +180,33 @@
  if(!location.pathname.startsWith('/forum/')){
   void show(false);
  }
+ async function refreshEntitlement(force=false){
+  if(refreshInFlight||document.hidden)return;
+  if(!force&&Date.now()-checkedAt<STATUS_INTERVAL)return;
+  // Anonymous pages do not contact the account service unnecessarily.
+  let receipt;
+  try{receipt=localStorage.getItem(KEY);}catch{return;}
+  if(!receipt&&!force&&permission===true)return;
+  refreshInFlight=true;
+  try{
+   const before=permission;
+   const allowed=await ensurePermission(true);
+   if(before===allowed)return;
+   if(!allowed){
+    const hadVendor=allZones().some(box=>box.querySelector('[data-adsterra-mount]')?.children.length);
+    hide();
+    // A reload removes already-executed vendor JS from this document.
+    if(hadVendor)location.reload();
+    return;
+   }
+   const forum=location.pathname.startsWith('/forum/');
+   if(!forum||(!location.search&&document.querySelector('.forum-category-grid')))void show(forum);
+  }finally{refreshInFlight=false;}
+ }
  window.addEventListener('storage',event=>{
-  if(event.key===KEY){hide();statusPromise=null;permission=null;location.reload();}
+  if(event.key===KEY||event.key===null)void refreshEntitlement(true);
  });
+ window.addEventListener('focus',()=>void refreshEntitlement());
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshEntitlement();});
+ window.setInterval(()=>void refreshEntitlement(),STATUS_INTERVAL);
 })();
