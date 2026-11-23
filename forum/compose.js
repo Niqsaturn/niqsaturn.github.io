@@ -74,6 +74,13 @@ loginForm.addEventListener('submit',async event=>{
   if(typeof credentials.accessToken!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(credentials.accessToken))
    throw Error('Could not establish an authenticated session.');
   bearer=credentials.accessToken;
+  // A forum sign-in also activates website ad-free mode for an active Royal
+  // Pass. Only the bounded proof is retained; not the account access token.
+  try{
+   const adStatus=await request('/api/ads/status','GET',null,bearer);
+   if(adStatus.adFree===true&&typeof adStatus.receipt==='string'&&adStatus.receipt.length<200)
+    localStorage.setItem('enroute-ad-free-receipt-v1',adStatus.receipt);
+  }catch{/* Posting remains available even when ad-free lookup is unavailable. */}
   username=typeof credentials.username==='string'?credentials.username:name;
   document.querySelector('#forum-signed-in').textContent='SIGNED IN AS '+username;
   loginPanel.hidden=true;editor.hidden=false;
