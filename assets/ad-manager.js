@@ -24,6 +24,8 @@
  let permission=null;
  let statusPromise=null;
  let loaded=false;
+ // Cancel pending ad operations whenever the forum leaves its overview.
+ let visibilityEpoch=0;
  function allZones(){return [...document.querySelectorAll('[data-adsterra-zone]')];}
  function reset(){allZones().forEach(el=>{el.hidden=true;el.dataset.adsterraReady='false';});}
  async function mayShowAds(){
@@ -82,20 +84,32 @@
   box.hidden=false;box.dataset.adsterraReady='true';return true;
  }
  async function show(onlyForum=false){
-  if(!await ensurePermission()){reset();return false;}
-  if(onlyForum&&(!location.pathname.startsWith('/forum/')||location.search||!document.querySelector('.forum-category-grid'))){reset();return false;}
+  const epoch=visibilityEpoch;
+  const routeAllowed=()=>{
+   if(epoch!==visibilityEpoch)return false;
+   if(onlyForum&&(!location.pathname.startsWith('/forum/')||location.search||!document.querySelector('.forum-category-grid'))){
+    hide();return false;
+   }
+   return true;
+  };
+  if(!await ensurePermission()){
+   if(epoch===visibilityEpoch)reset();
+   return false;
+  }
+  if(!routeAllowed())return false;
   const zones=allZones().filter(eligible);
   for(const box of zones){
+   if(!routeAllowed())return false;
    if(box.dataset.adsterraReady==='true'){box.hidden=false;continue;}
    const unit=UNITS[box.dataset.adsterraZone];
    if(!unit)continue;
    if(unit.native){if(!onlyForum)continue;mountNative(box);continue;}
    const size=innerWidth<720?unit.mobile:unit.desktop;
-   if(size)await mountClassic(box,size);
+   if(size){await mountClassic(box,size);if(!routeAllowed())return false;}
   }
   loaded=true;return true;
  }
- function hide(){allZones().forEach(box=>{box.hidden=true;});}
+ function hide(){visibilityEpoch++;allZones().forEach(box=>{box.hidden=true;});}
  window.EnRouteAdPlacements=Object.freeze({show,hide});
  if(!location.pathname.startsWith('/forum/')){
   void show(false);
