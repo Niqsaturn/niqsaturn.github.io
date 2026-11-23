@@ -22,15 +22,11 @@ function a(text,url,cls){const n=node('a',cls,text);n.href=url;return n;}
 function view(){const s=new URLSearchParams(location.search),t=s.get('topic'),cat=s.get('category'),v=s.get('view');if(t&&/^[1-9]\d{0,7}$/.test(t))return {topic:+t,replyPage:Math.min(1000,Math.max(1,Number(s.get('page'))||1))};if(cat&&BY_ID.has(cat))return {category:cat,q:(s.get('q')||'').slice(0,100)};return {view:['latest','popular','unanswered','rules'].includes(v)?v:'categories',q:(s.get('q')||'').slice(0,100)};}
 function url(r){const p=new URLSearchParams();if(r.topic){p.set('topic',r.topic);if(r.replyPage>1)p.set('page',r.replyPage);}else if(r.category)p.set('category',r.category);else if(r.view&&r.view!=='categories')p.set('view',r.view);if(r.q)p.set('q',r.q);return '/forum/'+(p.size?'?'+p:'');}
 function adOverview(r){return !r.topic&&!r.category&&!r.q&&r.view==='categories';}
-function hideForumAds(){document.querySelectorAll('[data-forum-ad-placement]').forEach(x=>{x.hidden=true;});}
-function showForumAds(){
- // Adsterra supplies a unique approved code for each zone. Until that code is
- // installed and the zone has content, keep it hidden so no empty ad space appears.
- for(const box of document.querySelectorAll('[data-forum-ad-placement]')){
-  const target=box.querySelector('[data-adsterra-mount]');
-  box.hidden=!(box.dataset.adsterraReady==='true'&&target&&target.childNodes.length>0);
- }
+function hideForumAds(){
+ if(window.EnRouteAdPlacements)window.EnRouteAdPlacements.hide();
+ else document.querySelectorAll('[data-forum-ad-placement]').forEach(x=>{x.hidden=true;});
 }
+function showForumAds(){void window.EnRouteAdPlacements?.show(true);}
 function go(r){
  if(adOverview(view())&&!adOverview(r)){location.assign(url(r));return;}
  history.pushState(null,'',url(r));render();window.scrollTo(0,0);
