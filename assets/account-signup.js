@@ -7,11 +7,11 @@
   if (!startForm || !verifyForm || !status || !success) return;
   const KEY = 'enroute-web-signup-binding';
   const PENDING = 'enroute-web-signup-pending';
-  const API_ORIGIN = 'https://en-route.ringtail-anoles.ts.net:8443';
+  const API_ORIGIN = window.EnRouteApiRoot || 'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
   const API_ROUTES = Object.freeze({
-    start: '/enroute-account/api/auth/register',
-    verify: '/enroute-account/api/auth/register/verify',
-    resend: '/enroute-account/api/auth/register/resend'
+    start: '/auth/register',
+    verify: '/auth/register/verify',
+    resend: '/auth/register/resend'
   });
   const randomBinding = () => {
     const bytes = crypto.getRandomValues(new Uint8Array(32));
@@ -40,7 +40,7 @@
     if (location.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(location.hostname))
       throw new Error('Signup requires an HTTPS website.');
     if (!Object.hasOwn(API_ROUTES, action)) throw new Error('Unsupported signup action.');
-    const response = await fetch(new URL(API_ROUTES[action], API_ORIGIN), {
+    const response = await fetch(API_ORIGIN + API_ROUTES[action], {
       mode: 'cors',
       referrerPolicy: 'no-referrer',
       method: 'POST',
@@ -98,12 +98,13 @@
     finally { buttons(verifyForm, false); }
   });
   document.getElementById('resend-verify')?.addEventListener('click', async event => {
-    event.currentTarget.disabled = true;
+    const resendButton = event.currentTarget;
+    resendButton.disabled = true;
     try {
       await api('resend', {});
       display('If this request is eligible, another verification email is on its way.');
     } catch (error) { display(friendly(error, 'Resend unavailable.')); }
-    finally { setTimeout(() => { event.currentTarget.disabled = false; }, 60000); }
+    finally { setTimeout(() => { resendButton.disabled = false; }, 60000); }
   });
   document.getElementById('restart-signup')?.addEventListener('click', () => {
     sessionStorage.removeItem(KEY);

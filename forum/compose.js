@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const BASE='https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
+const BASE=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
 const params=new URLSearchParams(location.search);
 const reportRaw=params.get('report');
 const reportId=reportRaw&&/^[1-9]\d{0,7}$/.test(reportRaw)?Number(reportRaw):null;
@@ -24,7 +24,7 @@ async function request(path,method='GET',payload=null,token=null){
  const options={method,credentials:'omit',redirect:'error',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)};
  if(method==='POST'){options.headers['Content-Type']='application/json';options.body=JSON.stringify(payload);}
  if(token)options.headers.Authorization='Bearer '+token;
- const response=await fetch(BASE+path,options);
+ const response=await fetch(BASE+(path.startsWith('/api/')?path.slice(4):path),options);
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(String(data.error||'Request rejected ('+response.status+')'));
  return data;

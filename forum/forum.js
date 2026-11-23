@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const BASE='https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api/forum';
+const BASE=(window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api')+'/forum';
 const DATA=[
  ['announcements','Announcements & Patch Notes','OFFICIAL','♛','Official news and patch notes'],
  ['support','Help & Bug Reports','OFFICIAL','⚒','Troubleshooting and bug reports'],
