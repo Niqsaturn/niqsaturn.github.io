@@ -35,3 +35,11 @@
  .logo{gap:7px}
  .header nav a:last-child{padding:8px 9px;font-size:10px}
 }
+
+/* Pre-release status: a visually prominent announcement, never a clickable download CTA. */
+.coming-soon-sign{cursor:default;user-select:text}
+.primary-cta.coming-soon-sign:hover{transform:none;box-shadow:0 0 0 6px #f0c66e18,0 20px 75px #dca95661,inset 0 2px #fff8e5}
+.coming-soon-sign .cta-copy b{letter-spacing:.06em}
+.coming-soon-mark{color:#3b2a14;font-size:34px;font-weight:800}
+.coming-soon-spark{color:#6b5127;font-size:27px;flex:none}
+@media(max-width:570px){.coming-soon-mark{font-size:29px}.coming-soon-spark{font-size:22px}}
