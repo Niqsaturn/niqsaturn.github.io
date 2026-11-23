@@ -180,3 +180,5 @@
 @media (prefers-reduced-motion: reduce) {
   .enroute-home *, .enroute-home *::before, .enroute-home *::after { animation: none !important; transition: none !important; }
 }
+/* Do not reserve large empty spaces when the ad provider has not mounted an iframe. */
+.enroute-home .enroute-ad-slot:not(:has(iframe)) { display: none !important; }
