@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://en-route.ringtail-anoles.ts.net:8443; form-action 'self'; base-uri 'self'">
+<meta name="theme-color" content="#080e1b"><title>Create your En-Route account | NiqSaturn</title>
+<link rel="icon" href="/assets/crown.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><script defer src="/assets/account-signup.js"></script>
+</head><body><a class="skip" href="#signup">Skip to create account</a>
+<header class="header"><div class="header-inner">
+<a class="logo" href="/" aria-label="En-Route homepage"><span class="logo-mark">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
+<nav aria-label="Main navigation"><a href="/">Home</a><a href="/forum/">Community</a><a href="/account/ad-free.html">Ad-free membership</a></nav>
+</div></header>
+<main style="padding-top:70px;min-height:75vh"><section id="signup" class="signup wrap" aria-labelledby="signup-title">
+  <div class="signup-heading"><div><p class="section-kicker">ONE ACCOUNT · THREE WORLDS</p><h2 id="signup-title">YOUR STORY<br><span>STARTS HERE.</span></h2><p>Create your free En-Route account on this secure, ad-free page. Verify your email, then sign in through the Windows launcher when you are ready to play.</p></div><div class="signup-promise"><strong>EVERY MOVE COUNTS</strong><p>Your account follows you across Blitzkrieg, Ulti and Board-Cr-ft. Registration is free; your game experience, progression, and account settings remain in the Windows client.</p></div></div>
+  <div class="signup-card">
+   <div class="signup-card-head"><span>FREE ACCOUNT</span><span>EMAIL VERIFICATION</span></div>
+   <form id="signup-form" class="signup-form" autocomplete="on">
+    <div class="signup-field"><label for="register-name">Username</label><input id="register-name" name="username" type="text" autocomplete="username" minlength="3" maxlength="24" required spellcheck="false" placeholder="Your court name"></div>
+    <div class="signup-field"><label for="register-email">Email address</label><input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></div>
+    <div class="signup-field"><label for="register-password">Password <small>15 or more characters</small></label><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="15" maxlength="128" required></div>
+    <div class="signup-field"><label for="register-confirm">Confirm password</label><input id="register-confirm" name="passwordConfirmation" type="password" autocomplete="new-password" minlength="15" maxlength="128" required></div>
+    <button type="submit" class="signup-submit">EMAIL ME A VERIFICATION CODE</button>
+    <p class="signup-legal">Your email is used for account verification and recovery. No payment information is collected here. Never share passwords or verification codes. <a href="./privacy.html">Privacy and account information</a>.</p>
+   </form>
+   <form id="verify-form" class="signup-form verify-form" hidden>
+    <h3>VERIFY YOUR EMAIL</h3><p>Enter the secure code from your En-Route verification email. It expires in 15 minutes.</p>
+    <div class="signup-field"><label for="verify-code">Verification code</label><input id="verify-code" name="code" type="text" minlength="43" maxlength="43" pattern="[A-Za-z0-9_-]{43}" autocomplete="one-time-code" spellcheck="false" required placeholder="Paste the code from your email"></div>
+    <button type="submit" class="signup-submit">VERIFY & CREATE ACCOUNT</button>
+    <button type="button" id="resend-verify" class="signup-link">Resend verification code</button>
+    <button type="button" id="restart-signup" class="signup-link">Start again</button>
+   </form>
+   <div class="signup-feedback" id="signup-feedback" role="status" aria-live="polite"></div>
+   <div id="signup-complete" class="signup-complete" hidden><strong>ACCOUNT VERIFIED</strong><p>Your En-Route account is ready. Open the Windows launcher and sign in with your username and password.</p><p class="signup-install-note">Get the free Windows portable ZIP from the homepage, extract it fully, then open En-Route.exe. A signed Windows installer is not yet available.</p></div>
+  </div>
+ </section></main>
+<footer class="footer wrap"><a href="/">← Return to the homepage</a><span>© 2026 NIQSATURN</span><a href="/privacy.html">Privacy</a></footer>
+</body></html>
