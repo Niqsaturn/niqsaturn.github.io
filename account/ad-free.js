@@ -44,4 +44,5 @@
   }catch(error){status(error?.message||'Account sign-in unavailable. Please try again.');}
   finally{token=null;password.value='';button.disabled=false;}
  });
+ button.disabled=false;
 })();
