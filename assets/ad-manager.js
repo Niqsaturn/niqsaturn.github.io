@@ -111,9 +111,15 @@
    if(creativePresent(mount))finish(true);
   });
  }
+ function placementWidth(box){
+  const parent=box.parentElement;if(!parent)return 0;
+  const parentStyle=getComputedStyle(parent),slotStyle=getComputedStyle(box);
+  const padding=s=>(parseFloat(s.paddingLeft)||0)+(parseFloat(s.paddingRight)||0);
+  return Math.min(parent.clientWidth-padding(parentStyle),parseFloat(slotStyle.maxWidth)||Infinity)-padding(slotStyle);
+ }
  async function mountClassic(box,unit,epoch){
   const mount=box.querySelector('[data-adsterra-mount]');
-  if(!mount||unit.width>Math.max(window.innerWidth-18,0))return false;
+  if(!mount||unit.width>placementWidth(box))return false;
   mount.style.minHeight=unit.height+'px';
   mount.style.maxWidth=unit.width+'px';
   mount.style.margin='0 auto';
@@ -174,7 +180,8 @@
     if(!routeAllowed())return false;
     continue;
    }
-   const size=innerWidth<720?unit.mobile:unit.desktop;
+   const preferred=innerWidth<720?unit.mobile:unit.desktop;
+   const size=preferred&&preferred.width<=placementWidth(box)?preferred:unit.mobile&&unit.mobile.width<=placementWidth(box)?unit.mobile:null;
    if(size){
     await mountClassic(box,size,epoch);
     if(!routeAllowed())return false;
