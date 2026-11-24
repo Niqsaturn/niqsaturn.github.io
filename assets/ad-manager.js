@@ -44,7 +44,7 @@
    if(!ok||!tc||!['tcloaded','useractioncomplete'].includes(tc.eventStatus))return;
    const granted=tc.gdprApplies===false||(tc.gdprApplies===true&&!!tc.tcString&&tc.vendor?.consents?.[755]===true&&[1,3,4].every(id=>tc.purpose?.consents?.[id]===true));
    googleConsent=granted;
-   if(!granted){googleBoxes().forEach(box=>{box.hidden=true;});return;}
+   if(!granted){googleBoxes().forEach(box=>{box.hidden=true;box.querySelector('[data-google-mount]')?.replaceChildren();});return;}
    syncGoogle();
   });
  }
@@ -55,7 +55,7 @@
   if(!googleLoaded){
    googleLoaded=true;
    const script=document.createElement('script');script.async=true;script.crossOrigin='anonymous';script.src=GOOGLE_URL;script.id='enroute-adsense';
-   script.onload=()=>{registerGoogleConsent();syncGoogle();};
+   script.onload=()=>{let attempts=0;const waitForCmp=()=>{registerGoogleConsent();syncGoogle();if(!googleConsentRegistered&&++attempts<20&&adsPermitted())setTimeout(waitForCmp,750);};waitForCmp();};
    script.onerror=()=>{googleLoaded=false;script.remove();};
    document.head.append(script);
   }
@@ -69,7 +69,8 @@
   footer.append(toggle);
   const panel=document.createElement('section');panel.className='enroute-ad-consent';panel.hidden=true;panel.setAttribute('aria-label','Advertising privacy');
   panel.innerHTML='<div><strong>Advertising privacy</strong><p>Optional advertising uses third-party cookies. Choose whether to allow ads. Royal Pass members remain ad-free. <a href="/privacy.html">Privacy policy</a></p></div><div class="enroute-consent-actions"><button type="button" data-ad-choice="deny">Decline</button><button type="button" data-ad-choice="allow">Allow ads</button></div>';
-  footer.before(panel);
+  const anchor=isHome()?document.querySelector('#trailer'):document.querySelector('#forum-content');
+  (anchor||footer).before(panel);
   const open=()=>{panel.hidden=false;panel.scrollIntoView({block:'nearest'});panel.querySelector('button')?.focus({preventScroll:true});};
   toggle.addEventListener('click',()=>panel.hidden?open():panel.hidden=true);
   for(const button of panel.querySelectorAll('[data-ad-choice]'))button.addEventListener('click',()=>{
@@ -101,7 +102,7 @@
  let checkInFlight=false;
  let mountingEpoch=null;
  const STATUS_INTERVAL=120000;
- let refreshInFlight=false;
+ let refreshInFlight=false,refreshAgain=false;
  // Invalidate all pending placements when the forum navigates away.
  let visibilityEpoch=0;
  const lazyReady=new Set(),lazyObservers=new Map();
@@ -279,7 +280,8 @@
  window.EnRouteAdPlacements=Object.freeze({show,hide});
  void ensurePermission().then(()=>{addConsentControls();if(isHome())void show(false);});
  async function refreshEntitlement(force=false){
-  if(refreshInFlight||document.hidden)return;
+  if(refreshInFlight||checkInFlight){if(force){refreshAgain=true;statusPromise?.finally(()=>{if(refreshAgain&&!refreshInFlight&&!checkInFlight){refreshAgain=false;void refreshEntitlement(true);}});}return;}
+  if(document.hidden&&!force)return;
   if(!force&&Date.now()-checkedAt<STATUS_INTERVAL)return;
   // Anonymous pages do not contact the account service unnecessarily.
   let receipt;
@@ -291,8 +293,7 @@
    const allowed=await ensurePermission(true);
    if(before===allowed)return;
    if(!allowed){
-    const hadVendor=allZones().some(box=>box.querySelector('[data-adsterra-mount]')?.children.length);
-    hide();
+     hide();
     // A reload removes already-executed vendor JS from this document.
     // Stop and remove the visible ads immediately; never refresh ad inventory automatically.
     googleBoxes().forEach(box=>{box.hidden=true;box.querySelector('[data-google-mount]')?.replaceChildren();});
@@ -300,11 +301,11 @@
    }
    const forum=location.pathname.startsWith('/forum/');
    if(isHome()||isOverview())void show(forum);
-  }finally{refreshInFlight=false;}
+  }finally{refreshInFlight=false;if(refreshAgain){refreshAgain=false;void refreshEntitlement(true);}}
  }
  window.addEventListener('storage',event=>{
-  if(event.key===CONSENT_KEY){hide();return;}
-  if(event.key===KEY||event.key===null){hide();permission=null;checkedAt=0;void refreshEntitlement(true);}
+  if(event.key===CONSENT_KEY){if(!hasConsent()){hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());}else if(permission===true&&(isHome()||isOverview()))void show(isOverview());return;}
+  if(event.key===KEY||event.key===null){hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());permission=null;checkedAt=0;void refreshEntitlement(true);}
  });
  window.addEventListener('focus',()=>{registerGoogleConsent();void refreshEntitlement();});
  window.addEventListener('pageshow',()=>void refreshEntitlement(true));
