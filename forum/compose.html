@@ -28,14 +28,14 @@
 <a class="compose-back" href="/forum/">← BACK TO COMMUNITY</a>
 <p class="section-kicker" style="margin-top:32px">NIQSATURN / COMMUNITY</p>
 <h1>TAKE THE <span>FLOOR.</span></h1>
-<p class="compose-lead">Write your discussion first, then sign in with your En-Route game account when you publish. Passwords and session tokens stay off the ad-supported forum pages and are never saved in browser storage.</p>
+<p class="compose-lead">Write your discussion first, then sign in with your En-Route game account when you publish. Use your En-Route account to publish.</p>
 <section class="compose-card" id="login-section" aria-labelledby="login-heading">
 <h2 id="login-heading">SIGN IN TO POST</h2>
 <p>Forum discussions are public, but posting requires your En-Route game account. This secure sign-in screen does not load advertising or other third-party scripts.</p>
-<form id="login-form">
+<form id="login-form" method="post" action="/forum/compose.html">
 <label>Username<input id="forum-username" name="username" required minlength="3" maxlength="24" autocomplete="username" spellcheck="false"></label>
 <label>Password<input id="forum-password" name="password" type="password" required autocomplete="current-password"></label>
-<button id="forum-login" type="submit">SIGN IN SECURELY</button>
+<button id="forum-login" type="submit" disabled>Sign in</button>
 </form>
 <div class="compose-status" id="login-status" role="status" aria-live="polite"></div>
 <p class="compose-note">Need an account? <a class="compose-link" href="/#signup">Create one on the official website</a>. Your credentials are not saved in browser storage on this page.</p>
@@ -43,7 +43,7 @@
 <section class="compose-card" id="editor-section" aria-labelledby="editor-heading" hidden>
 <h2 id="editor-heading">NEW DISCUSSION</h2>
 <p class="compose-active" id="forum-signed-in"></p>
-<form id="post-form">
+<form id="post-form" method="post" action="/forum/compose.html">
 <label id="category-label">FORUM CATEGORY<select id="forum-category" name="category" required></select></label>
 <label id="title-label">TOPIC TITLE<input id="forum-title" name="title" required minlength="8" maxlength="120" placeholder="Give your discussion a specific title"></label><div id="forum-related-topics" class="compose-related" aria-live="polite" hidden></div>
 <label>YOUR MESSAGE<textarea id="forum-message" name="body" required minlength="20" maxlength="8000" placeholder="Share your question, idea, or experience. Avoid private account details." aria-describedby="forum-message-counter"></textarea></label><p id="forum-message-counter" class="compose-counter" aria-live="polite">0 / 8000 characters</p>
