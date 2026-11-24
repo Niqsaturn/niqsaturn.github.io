@@ -43,3 +43,13 @@
 .coming-soon-mark{color:#3b2a14;font-size:34px;font-weight:800}
 .coming-soon-spark{color:#6b5127;font-size:27px;flex:none}
 @media(max-width:570px){.coming-soon-mark{font-size:29px}.coming-soon-spark{font-size:22px}}
+
+
+/* Shared account menu; keep the identity and sign-in visible at mobile widths. */
+.header nav [data-enroute-account-nav]{display:inline-flex;align-items:center;position:relative;flex-shrink:0}
+.header nav [data-enroute-account-nav] a,.header nav [data-enroute-account-nav] summary{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;color:#f5dfab;border:1px solid #edcd8770;padding:9px 12px;border-radius:999px;font:700 12px system-ui;cursor:pointer;text-decoration:none}
+.header nav [data-enroute-account-nav] summary::after{content:'▾';font-size:10px}
+.header nav .enroute-account-actions{position:absolute;right:0;top:calc(100% + 8px);min-width:148px;background:#111d30;border:1px solid #6e809c;border-radius:9px;padding:6px;box-shadow:0 8px 30px #0007;z-index:12}
+.header nav .enroute-account-actions a,.header nav .enroute-account-actions button{display:block!important;width:100%;text-align:left;padding:11px 12px;border:0;border-radius:5px;color:#f2e8d0;background:none;font:650 13px system-ui;text-decoration:none;cursor:pointer}
+.header nav .enroute-account-actions a:hover,.header nav .enroute-account-actions button:hover{background:#263850}
+@media(max-width:850px){.header nav{display:flex!important;gap:0}.header nav>a:not([data-enroute-account-nav]){display:none!important}.header nav [data-enroute-account-nav] a,.header nav [data-enroute-account-nav] summary{font-size:11px;max-width:145px;overflow:hidden;text-overflow:ellipsis}}
