@@ -1,7 +1,7 @@
 (() => {
  'use strict';
  const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
- const KEY='enroute-ad-free-receipt-v1';
+ const KEY='enroute-ad-free-receipt-v1',NAME='enroute-account-display-v1';
  const form=document.querySelector('#member-auth-form');
  const result=document.querySelector('#member-result');
  const button=document.querySelector('#member-check');
@@ -15,7 +15,8 @@
   if(!response.ok)throw Error(data.error||'Membership service unavailable ('+response.status+').');
   return data;
  }
- document.querySelector('#member-forget').addEventListener('click',()=>{localStorage.removeItem(KEY);status('This browser no longer remembers ad-free browsing. You can sign in again whenever you like.');});
+ document.querySelector('#member-forget')?.addEventListener('click',()=>{localStorage.removeItem(NAME);localStorage.removeItem(KEY);location.assign(returnTo);});
+ if(!form||!result||!button||!username||!password)return;
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(!form.reportValidity())return;
   button.disabled=true;status('Signing in and checking your account…');
@@ -24,18 +25,20 @@
    const login=await json('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.value.trim(),password:password.value})});
    token=login.accessToken;
    if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))throw Error('Secure account session could not be established.');
+   const displayName=typeof login.account?.username==='string'?login.account.username:typeof login.username==='string'?login.username:username.value.trim();
+   const remember=()=>{if(/^[A-Za-z0-9_.-]{3,24}$/.test(displayName))localStorage.setItem(NAME,displayName);};
    const ent=await json('/api/ads/status',{method:'GET',headers:{'Authorization':'Bearer '+token}});
    if(typeof ent.receipt==='string'&&/^v2\.[A-Za-z0-9_-]{70}$/.test(ent.receipt)){
-    localStorage.setItem(KEY,ent.receipt);
+    localStorage.setItem(KEY,ent.receipt);remember();
     status(ent.adFree===true?'Royal Pass active. Website and forum ads are off.':'Signed in. Royal Pass is optional.');
     location.assign(returnTo);return;
    }
    if(ent.adFree===true&&typeof ent.receipt==='string'&&ent.receipt.length<200){
-    localStorage.setItem(KEY,ent.receipt);
+    localStorage.setItem(KEY,ent.receipt);remember();
     location.assign(returnTo);return;
    }
    if(ent.adFree!==false)throw Error('Account advertising status is unavailable.');
-   localStorage.removeItem(KEY);
+   localStorage.removeItem(KEY);localStorage.removeItem(NAME);
    status(ent.billingReady===false?'Signed in. Membership purchases are not active yet.':'Signed in. You can continue with your free account.');
    location.assign(returnTo);
   }catch(error){status(error?.message||'Account sign-in unavailable. Please try again.');}
