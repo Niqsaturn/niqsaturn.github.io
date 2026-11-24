@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://niqsaturn.github.io/sitemap.xml
+Sitemap: https://niqsaturn.github.io/RefraxG/sitemap.xml
