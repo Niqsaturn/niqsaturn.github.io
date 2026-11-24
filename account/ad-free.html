@@ -24,10 +24,10 @@
 <main id="member-main" class="wrap"><section class="member-access">
 <h1>Sign in</h1>
 <p>Use your En-Route username and password.</p>
-<form id="member-auth-form" autocomplete="on">
+<form id="member-auth-form" method="post" action="/account/ad-free.html" autocomplete="on">
 <label>Game-account username<input id="member-username" type="text" name="username" minlength="3" maxlength="24" autocomplete="username" required></label>
 <label>Password<input id="member-password" type="password" name="password" minlength="12" autocomplete="current-password" required></label>
-<button id="member-check" type="submit">Sign in</button>
+<button id="member-check" type="submit" disabled>Sign in</button>
 </form>
 <div id="member-result" role="status" aria-live="polite"></div>
 <p>New to En-Route? <a href="/register.html">Create an account</a>.</p>
