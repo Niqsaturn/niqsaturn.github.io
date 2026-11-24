@@ -9,10 +9,11 @@
  const GOOGLE_CLIENT='ca-pub-7639855617393587';
  const GOOGLE_URL='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+GOOGLE_CLIENT;
  const CONSENT_KEY='enroute-ads-consent-v1';
- const GOOGLE_UNITS=Object.freeze({'6267361496':true,'7590297438':true});
+ const GOOGLE_UNITS=Object.freeze({'6267361496':true,'7590297438':true,'6299151084':true});
  let googleLoaded=false,googleReady=false,googleConsentRegistered=false,cmpResolved=false,nonGdpr=false;
  let googleRequested=new WeakSet();
- function hasConsent(){try{const choice=localStorage.getItem(CONSENT_KEY);return navigator.globalPrivacyControl!==true&&choice!=='deny'&&(choice==='allow'||nonGdpr);}catch{return false;}}
+ function hasConsent(){try{const choice=localStorage.getItem(CONSENT_KEY);return navigator.globalPrivacyControl!==true&&choice!=='deny'&&(choice==='allow'||nonGdpr||readRegionalSignal());}catch{return false;}}
+ function readRegionalSignal(){try{return sessionStorage.getItem('enroute-ad-region-nongdpr')==='1';}catch{return false;}}
  function isHome(){return location.pathname==='/'||location.pathname==='/index.html';}
  function isOverview(){return location.pathname==='/forum/'&&!location.search&&!!document.querySelector('.forum-category-grid');}
  function adsPermitted(){return permission===true&&!document.hidden;}
@@ -34,7 +35,8 @@
     mount.append(ad);box.hidden=false;
     const statusObserver=new MutationObserver(()=>{if(ad.dataset.adStatus==='unfilled'){statusObserver.disconnect();box.hidden=true;}});
     statusObserver.observe(ad,{attributes:true,attributeFilter:['data-ad-status']});
-    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch{box.hidden=true;statusObserver.disconnect();}
+    const emptyTimer=setTimeout(()=>{if(ad.dataset.adStatus!=='filled'&&!ad.querySelector('iframe')){box.hidden=true;statusObserver.disconnect();}},12000);
+    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch{clearTimeout(emptyTimer);box.hidden=true;statusObserver.disconnect();}
    },{rootMargin:'350px 0px'});
    if(box.dataset.googleObserved!=='true'){box.dataset.googleObserved='true';observer.observe(box.parentElement);}
   }
@@ -45,6 +47,7 @@
   window.__tcfapi('addEventListener',2,(tc,ok)=>{
    if(!ok||!tc||!['tcloaded','useractioncomplete'].includes(tc.eventStatus))return;
    const wasAllowed=hasConsent();nonGdpr=tc.gdprApplies===false;cmpResolved=true;
+   try{if(nonGdpr)sessionStorage.setItem('enroute-ad-region-nongdpr','1');else sessionStorage.removeItem('enroute-ad-region-nongdpr');}catch{}
    // Google interprets the actual TC string, including limited-ad eligibility.
    // No local choice can override an opt-out or grant a paid entitlement.
    syncGoogle();
@@ -69,12 +72,11 @@
   if(!isHome()&&!location.pathname.startsWith('/forum/'))return;
   const footer=document.querySelector('footer');
   if(!footer)return;
-  const toggle=document.createElement('button');toggle.type='button';toggle.className='enroute-privacy-toggle';toggle.textContent='AD PRIVACY';
+  const toggle=document.createElement('button');toggle.type='button';toggle.className='enroute-privacy-toggle';toggle.textContent='PRIVACY SETTINGS';
   footer.append(toggle);
   const panel=document.createElement('section');panel.className='enroute-ad-consent';panel.hidden=true;panel.setAttribute('aria-label','Advertising privacy');
   panel.innerHTML='<div><strong>Advertising privacy</strong><p>Free access is supported by advertising. Manage third-party advertising cookies and data sharing; your choice is not a Royal Pass subscription. Eligible restricted ads may still appear. <a href="/privacy.html">Privacy policy</a></p></div><div class="enroute-consent-actions"><button type="button" data-ad-choice="deny">Limit third-party cookies</button><button type="button" data-ad-choice="allow">Allow third-party cookies</button></div>';
-  const anchor=isHome()?document.querySelector('#trailer'):document.querySelector('#forum-content');
-  (anchor||footer).before(panel);
+  footer.before(panel);
   const open=()=>{panel.hidden=false;panel.scrollIntoView({block:'nearest'});panel.querySelector('button')?.focus({preventScroll:true});};
   toggle.addEventListener('click',()=>panel.hidden?open():panel.hidden=true);
   for(const button of panel.querySelectorAll('[data-ad-choice]'))button.addEventListener('click',()=>{
@@ -308,12 +310,20 @@
     return;
    }
    const forum=location.pathname.startsWith('/forum/');
+   // After a real paid-to-free transition only, a new document is needed to initialize fresh Google slots.
+   // Never reload periodically or to refresh ad impressions while eligibility is unchanged.
+   if(before===false&&googleBoxes().some(box=>googleRequested.has(box))){location.reload();return;}
    if(isHome()||isOverview())void show(forum);
   }finally{refreshInFlight=false;if(refreshAgain){refreshAgain=false;void refreshEntitlement(true);}}
  }
  window.addEventListener('storage',event=>{
   if(event.key===CONSENT_KEY){if(!hasConsent())hideAdsterra();else if(permission===true&&(isHome()||isOverview()))void show(isOverview());return;}
-  if(event.key===KEY||event.key===null){hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());permission=null;checkedAt=0;void refreshEntitlement(true);}
+  if(event.key===KEY||event.key===null){
+   // Stop display and vendor callbacks until the new receipt is verified. Preserve false for paid-to-free transition detection.
+   hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());permission=false;checkedAt=0;
+   // Reconcile the new proof even if a previous request is still in flight.
+   void refreshEntitlement(true);
+  }
  });
  window.addEventListener('focus',()=>{registerGoogleConsent();void refreshEntitlement();});
  window.addEventListener('pageshow',()=>void refreshEntitlement(true));
