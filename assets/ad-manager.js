@@ -10,25 +10,27 @@
  const GOOGLE_URL='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+GOOGLE_CLIENT;
  const CONSENT_KEY='enroute-ads-consent-v1';
  const GOOGLE_UNITS=Object.freeze({'6267361496':true,'7590297438':true});
- let googleLoaded=false,googleConsent=false,googleConsentRegistered=false;
+ let googleLoaded=false,googleReady=false,googleConsentRegistered=false,cmpResolved=false,nonGdpr=false;
  let googleRequested=new WeakSet();
- function hasConsent(){try{return localStorage.getItem(CONSENT_KEY)==='allow'&&navigator.globalPrivacyControl!==true;}catch{return false;}}
+ function hasConsent(){try{const choice=localStorage.getItem(CONSENT_KEY);return navigator.globalPrivacyControl!==true&&choice!=='deny'&&(choice==='allow'||nonGdpr);}catch{return false;}}
  function isHome(){return location.pathname==='/'||location.pathname==='/index.html';}
  function isOverview(){return location.pathname==='/forum/'&&!location.search&&!!document.querySelector('.forum-category-grid');}
- function adsPermitted(){return permission===true&&hasConsent()&&!document.hidden;}
+ function adsPermitted(){return permission===true&&!document.hidden;}
  function googleBoxes(){return [...document.querySelectorAll('[data-google-slot]')];}
  function syncGoogle(){
-  if(!adsPermitted()||!googleConsent||!googleLoaded||!isHome())return;
+  if(!adsPermitted()||!googleReady||!isHome()||(googleConsentRegistered&&!cmpResolved))return;
   for(const box of googleBoxes()){
    const slot=box.dataset.googleSlot;
    if(!Object.hasOwn(GOOGLE_UNITS,slot)||googleRequested.has(box))continue;
    const mount=box.querySelector('[data-google-mount]');
    if(!mount||!box.parentElement||box.parentElement.clientWidth<280)continue;
    const observer=new IntersectionObserver(entries=>{
-    if(!entries.some(e=>e.isIntersecting)||!adsPermitted()||!googleConsent||googleRequested.has(box))return;
+    if(!entries.some(e=>e.isIntersecting)||!adsPermitted()||(googleConsentRegistered&&!cmpResolved)||googleRequested.has(box))return;
     observer.disconnect();googleRequested.add(box);
     const ad=document.createElement('ins');ad.className='adsbygoogle';ad.style.display='block';
     ad.dataset.adClient=GOOGLE_CLIENT;ad.dataset.adSlot=slot;ad.dataset.adFormat='auto';ad.dataset.fullWidthResponsive='true';
+    // Restrict data processing by default; Google applies CMP and limited-ad eligibility.
+    ad.dataset.restrictDataProcessing='1';
     mount.append(ad);box.hidden=false;
     const statusObserver=new MutationObserver(()=>{if(ad.dataset.adStatus==='unfilled'){statusObserver.disconnect();box.hidden=true;}});
     statusObserver.observe(ad,{attributes:true,attributeFilter:['data-ad-status']});
@@ -42,20 +44,22 @@
   googleConsentRegistered=true;
   window.__tcfapi('addEventListener',2,(tc,ok)=>{
    if(!ok||!tc||!['tcloaded','useractioncomplete'].includes(tc.eventStatus))return;
-   const granted=tc.gdprApplies===false||(tc.gdprApplies===true&&!!tc.tcString&&tc.vendor?.consents?.[755]===true&&[1,3,4].every(id=>tc.purpose?.consents?.[id]===true));
-   googleConsent=granted;
-   if(!granted){googleBoxes().forEach(box=>{box.hidden=true;box.querySelector('[data-google-mount]')?.replaceChildren();});return;}
+   const wasAllowed=hasConsent();nonGdpr=tc.gdprApplies===false;cmpResolved=true;
+   // Google interprets the actual TC string, including limited-ad eligibility.
+   // No local choice can override an opt-out or grant a paid entitlement.
    syncGoogle();
+   if(!wasAllowed&&hasConsent()&&adsPermitted()&&(isHome()||isOverview()))void show(isOverview());
+   if(wasAllowed&&!hasConsent())hideAdsterra();
   });
  }
  function maybeLoadGoogle(){
-  // Bootstrap Google's CMP for consenting, eligible free visitors only.
-  // Auto Ads must remain OFF. Manual requests wait for a certified CMP signal.
+  // Bootstrap Google's CMP for all eligible free visitors; no separate ad opt-in.
+  // Auto Ads must remain OFF. Google handles limited/restricted inventory.
   if(!adsPermitted()||!isHome()||location.protocol!=='https:')return;
   if(!googleLoaded){
    googleLoaded=true;
    const script=document.createElement('script');script.async=true;script.crossOrigin='anonymous';script.src=GOOGLE_URL;script.id='enroute-adsense';
-   script.onload=()=>{let attempts=0;const waitForCmp=()=>{registerGoogleConsent();syncGoogle();if(!googleConsentRegistered&&++attempts<20&&adsPermitted())setTimeout(waitForCmp,750);};waitForCmp();};
+   script.onload=()=>{googleReady=true;registerGoogleConsent();syncGoogle();let attempts=0;const waitForCmp=()=>{registerGoogleConsent();syncGoogle();if(!googleConsentRegistered&&++attempts<20&&adsPermitted())setTimeout(waitForCmp,750);};waitForCmp();};
    script.onerror=()=>{googleLoaded=false;script.remove();};
    document.head.append(script);
   }
@@ -68,7 +72,7 @@
   const toggle=document.createElement('button');toggle.type='button';toggle.className='enroute-privacy-toggle';toggle.textContent='AD PRIVACY';
   footer.append(toggle);
   const panel=document.createElement('section');panel.className='enroute-ad-consent';panel.hidden=true;panel.setAttribute('aria-label','Advertising privacy');
-  panel.innerHTML='<div><strong>Advertising privacy</strong><p>Optional advertising uses third-party cookies. Choose whether to allow ads. Royal Pass members remain ad-free. <a href="/privacy.html">Privacy policy</a></p></div><div class="enroute-consent-actions"><button type="button" data-ad-choice="deny">Decline</button><button type="button" data-ad-choice="allow">Allow ads</button></div>';
+  panel.innerHTML='<div><strong>Advertising privacy</strong><p>Free access is supported by advertising. Manage third-party advertising cookies and data sharing; your choice is not a Royal Pass subscription. Eligible restricted ads may still appear. <a href="/privacy.html">Privacy policy</a></p></div><div class="enroute-consent-actions"><button type="button" data-ad-choice="deny">Limit third-party cookies</button><button type="button" data-ad-choice="allow">Allow third-party cookies</button></div>';
   const anchor=isHome()?document.querySelector('#trailer'):document.querySelector('#forum-content');
   (anchor||footer).before(panel);
   const open=()=>{panel.hidden=false;panel.scrollIntoView({block:'nearest'});panel.querySelector('button')?.focus({preventScroll:true});};
@@ -79,7 +83,7 @@
    // User-directed reload clears previously executed third-party scripts.
    location.reload();
   });
-  try{if(permission===true&&!localStorage.getItem(CONSENT_KEY)&&navigator.globalPrivacyControl!==true)panel.hidden=false;}catch{}
+  // Privacy choices are available in the footer; not a mandatory ad opt-in panel.
  }
  const CLASSIC='https://bellnewyork.org/22/';
  const NATIVE='https://bellnewyork.org/21/be1a8a1c143387189d74d1320ee44168';
@@ -227,7 +231,7 @@
   mountingEpoch=epoch;
   try{
   const routeAllowed=()=>{
-   if(epoch!==visibilityEpoch||!hasConsent()||permission!==true||(!onlyForum&&!isHome()))return false;
+   if(epoch!==visibilityEpoch||permission!==true||(!onlyForum&&!isHome()))return false;
    if(onlyForum&&(!location.pathname.startsWith('/forum/')||location.search||
       !document.querySelector('.forum-category-grid'))){
     hide();return false;
@@ -241,11 +245,12 @@
    }
    return false;
   }
-  if(!routeAllowed()||!hasConsent())return false;
+  if(!routeAllowed())return false;
   maybeLoadGoogle();
+  if(!hasConsent())return false;
   const zones=allZones().filter(eligible);
   for(const box of zones){
-   if(!routeAllowed())return false;
+   if(!routeAllowed()||!hasConsent())return false;
    if(box.dataset.adsterraReady==='true'){box.hidden=false;continue;}
    if(box.dataset.adsterraState==='no-fill'||!nearPlacement(box,onlyForum))continue;
    const unit=UNITS[box.dataset.adsterraZone];
@@ -267,8 +272,11 @@
   }finally{if(mountingEpoch===epoch)mountingEpoch=null;}
  }
  function hide(){
-  visibilityEpoch++;
   googleBoxes().forEach(box=>{box.hidden=true;});
+  hideAdsterra();
+ }
+ function hideAdsterra(){
+  visibilityEpoch++;
   allZones().forEach(box=>{
    box.hidden=true;
    box.dataset.adsterraReady='false';
@@ -304,7 +312,7 @@
   }finally{refreshInFlight=false;if(refreshAgain){refreshAgain=false;void refreshEntitlement(true);}}
  }
  window.addEventListener('storage',event=>{
-  if(event.key===CONSENT_KEY){if(!hasConsent()){hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());}else if(permission===true&&(isHome()||isOverview()))void show(isOverview());return;}
+  if(event.key===CONSENT_KEY){if(!hasConsent())hideAdsterra();else if(permission===true&&(isHome()||isOverview()))void show(isOverview());return;}
   if(event.key===KEY||event.key===null){hide();googleBoxes().forEach(box=>box.querySelector('[data-google-mount]')?.replaceChildren());permission=null;checkedAt=0;void refreshEntitlement(true);}
  });
  window.addEventListener('focus',()=>{registerGoogleConsent();void refreshEntitlement();});
