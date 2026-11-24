@@ -30,6 +30,21 @@
  let refreshInFlight=false;
  // Invalidate all pending placements when the forum navigates away.
  let visibilityEpoch=0;
+ const lazyReady=new Set(),lazyObservers=new Map();
+ function nearPlacement(box,onlyForum){
+  const name=box.dataset.adsterraZone;
+  const anchor=document.querySelector('[data-ad-lazy-anchor="'+name+'"]');
+  if(!anchor||lazyReady.has(name)||typeof IntersectionObserver!=='function')return true;
+  if(!lazyObservers.has(name)){
+   const observer=new IntersectionObserver(entries=>{
+    if(!entries.some(entry=>entry.isIntersecting))return;
+    observer.disconnect();lazyObservers.delete(name);lazyReady.add(name);
+    if(permission===true)void show(onlyForum);
+   },{rootMargin:'450px 0px',threshold:0});
+   lazyObservers.set(name,observer);observer.observe(anchor);
+  }
+  return false;
+ }
  function allZones(){return [...document.querySelectorAll('[data-adsterra-zone]')];}
  function reset(){allZones().forEach(el=>{el.hidden=true;el.dataset.adsterraReady='false';});}
  async function mayShowAds(){
@@ -82,8 +97,8 @@
    const timeout=setTimeout(()=>finish(false),9500);
    function finish(filled){
     if(settled)return;
-    if(epoch!==visibilityEpoch)filled=false;
     settled=true;clearTimeout(timeout);observer.disconnect();
+    if(epoch!==visibilityEpoch){resolve(false);return;}
     box.dataset.adsterraReady=filled?'true':'false';
     box.dataset.adsterraState=filled?'filled':'no-fill';
     box.hidden=!filled;
@@ -150,6 +165,7 @@
   for(const box of zones){
    if(!routeAllowed())return false;
    if(box.dataset.adsterraReady==='true'){box.hidden=false;continue;}
+   if(box.dataset.adsterraState==='no-fill'||!nearPlacement(box,onlyForum))continue;
    const unit=UNITS[box.dataset.adsterraZone];
    if(!unit)continue;
    if(unit.native){
@@ -172,6 +188,7 @@
   allZones().forEach(box=>{
    box.hidden=true;
    box.dataset.adsterraReady='false';
+   delete box.dataset.adsterraState;
    const mount=box.querySelector('[data-adsterra-mount]');
    if(mount)mount.replaceChildren();
   });
