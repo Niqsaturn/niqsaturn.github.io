@@ -33,10 +33,16 @@
     // Restrict data processing by default; Google applies CMP and limited-ad eligibility.
     ad.dataset.restrictDataProcessing='1';
     mount.append(ad);box.hidden=false;
-    const statusObserver=new MutationObserver(()=>{if(ad.dataset.adStatus==='unfilled'){statusObserver.disconnect();box.hidden=true;}});
+    // A slow response or a scroll is not a no-fill signal. Keep the slot in flow
+    // until the provider reports unfilled, or the membership gate removes it.
+    const settle=()=>{
+     if(!ad.isConnected){statusObserver.disconnect();return;}
+     if(ad.dataset.adStatus==='filled'){box.dataset.googleState='filled';box.hidden=permission!==true;}
+     else if(ad.dataset.adStatus==='unfilled'){box.dataset.googleState='unfilled';box.hidden=true;}
+    };
+    const statusObserver=new MutationObserver(settle);
     statusObserver.observe(ad,{attributes:true,attributeFilter:['data-ad-status']});
-    const emptyTimer=setTimeout(()=>{if(ad.dataset.adStatus!=='filled'&&!ad.querySelector('iframe')){box.hidden=true;statusObserver.disconnect();}},12000);
-    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch{clearTimeout(emptyTimer);box.hidden=true;statusObserver.disconnect();}
+    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});settle();}catch{box.hidden=true;statusObserver.disconnect();}
    },{rootMargin:'350px 0px'});
    if(box.dataset.googleObserved!=='true'){box.dataset.googleObserved='true';observer.observe(box.parentElement);}
   }
