@@ -4,6 +4,8 @@
  */
 (() => {
  'use strict';
+ // The homepage sign-in view must never execute third-party advertising code.
+ if(new URLSearchParams(location.search).get('signin')==='1')return;
  const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
  const GOOGLE_CLIENT='ca-pub-7639855617393587';
