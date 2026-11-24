@@ -24,13 +24,23 @@
 <script defer src="./assets/trailer-loader.js"></script>
 
 <meta name="color-scheme" content="dark">
+<style>
+/* Homepage only. Keep shared registration and forum layout untouched. */
+.launch-home .hero .enroute-ad-slot{margin:56px auto 0;padding:12px 0 0;max-width:1090px;border-top:1px solid var(--faint)}
+.launch-home .hero .enroute-ad-slot:not([hidden]) + .hero-shot{margin-top:48px}
+.launch-home .launch-ad-anchor{min-height:1px}
+.launch-home .launch-ad-anchor .enroute-ad-slot{margin:62px auto 0;padding:14px 10px 0;max-width:1090px}
+.launch-home .enroute-ad-slot .adsterra-slot-content{max-width:100%;overflow:hidden}
+.launch-home .video-shell video{aspect-ratio:16/9;object-fit:contain}
+@media(max-width:570px){.launch-home .hero .enroute-ad-slot{margin-top:42px}.launch-home .launch-ad-anchor .enroute-ad-slot{margin-top:42px}.launch-home .hero .enroute-ad-slot:not([hidden]) + .hero-shot{margin-top:42px}}
+</style>
 </head>
-<body>
+<body class="launch-home">
 <a class="skip" href="#main">Skip to content</a>
 <header class="header">
  <div class="header-inner">
   <a class="logo" href="#top" aria-label="En-Route Blitzkrieg home"><span class="logo-mark">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
-  <nav aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a><a href="#signup">Create account</a><a href="/account/ad-free.html">Account access</a></nav>
+  <nav aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a><a href="#signup">Create account</a><a href="/account/ad-free.html">Account sign-in</a></nav>
 
  </div>
 </header>
@@ -41,10 +51,14 @@
   <p class="intro">Protect your King when every square can turn against you. Survive a rising siege, build your formation, or command an entire court.</p>
   <div class="cta-group">
    <div id="release-status" class="primary-cta coming-soon-sign" role="status" aria-label="En-Route Windows release coming soon"><span class="win-icon coming-soon-mark" aria-hidden="true">♔</span><span class="cta-copy"><b>COMING SOON</b><small>FOR WINDOWS</small></span><span class="coming-soon-spark" aria-hidden="true">✦</span></div>
-   <span class="cta-detail">Follow the forum for news. No subscription is required to browse.</span>
+   <span class="cta-detail">Follow the community forum for release news.</span>
    <a class="text-action" href="#signup">Create your free account</a>
    <a class="text-action" href="#trailer">Watch the gameplay trailer <span aria-hidden="true">↓</span></a>
   </div>
+ <aside class="enroute-ad-slot enroute-ad-slot--between" data-adsterra-zone="home-after-trailer" aria-label="Advertisement" hidden>
+  <p class="enroute-ad-label">Advertisement</p>
+  <div class="adsterra-slot-content" data-adsterra-mount></div>
+ </aside>
   <div class="hero-shot" aria-label="Genuine En-Route game capture">
    <div class="shot-header"><div class="chrome-dots" aria-hidden="true"><i></i><i></i><i></i></div><span>EN-ROUTE / LIVE GAMEPLAY</span><span class="shot-build">BLITZKRIEG</span></div>
    <img src="https://raw.githubusercontent.com/Niqsaturn/En-Route/gh-pages/assets/hero-gameplay.webp" width="1280" height="800" alt="Real En-Route Blitzkrieg gameplay: a centered tactical chess board with enemy pieces, terrain and gameplay HUD" fetchpriority="high">
@@ -58,10 +72,6 @@
   <div class="video-status" data-trailer-status role="status" aria-live="polite"></div>
   <div class="video-key"><span><i class="circle"></i> ORIGINAL SOUNDTRACK + REAL GAMEPLAY</span><span>01:08 · SURVIVE / ADAPT / COMMAND</span></div>
  </section>
- <aside class="enroute-ad-slot enroute-ad-slot--between" data-adsterra-zone="home-after-trailer" aria-label="Advertisement" hidden>
-  <p class="enroute-ad-label">Advertisement</p>
-  <div class="adsterra-slot-content" data-adsterra-mount></div>
- </aside>
  <section id="modes" class="modes wrap" aria-labelledby="modes-title">
   <div class="section-title"><div><p class="section-kicker">CHOOSE YOUR BATTLEFIELD</p><h2 id="modes-title">YOUR PIECES.<br><span>YOUR KIND OF CHAOS.</span></h2></div><p>Each mode asks you to think differently: survive the siege, shape an army, or command the court.</p></div>
   <div class="mode-grid">
@@ -70,6 +80,12 @@
    <article class="mode-card"><div class="mode-photo"><img loading="lazy" width="1280" height="800" src="https://raw.githubusercontent.com/Niqsaturn/En-Route/gh-pages/assets/boardcraft.webp" alt="Board-Cr-ft strategic court with units and terrain"><span>COMMAND</span></div><div class="mode-info"><h3>BOARD-CR-FT</h3><p>Start with a Pawn. Build your King Base, gather resources and command your army.</p></div></article>
   </div>
  </section>
+ <div class="launch-ad-anchor" data-ad-lazy-anchor="home-after-download">
+ <aside class="enroute-ad-slot enroute-ad-slot--lower" data-adsterra-zone="home-after-download" aria-label="Advertisement" hidden>
+  <p class="enroute-ad-label">Advertisement</p>
+  <div class="adsterra-slot-content" data-adsterra-mount></div>
+ </aside>
+ </div>
  <section id="black-friday-offer" class="wrap" aria-labelledby="black-friday-title" style="margin-top:clamp(64px,9vw,120px)">
   <div style="border:1px solid #e5bf6b;border-radius:16px;background:linear-gradient(125deg,#372a1a,#18243a 65%);padding:clamp(20px,4vw,44px);display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between">
    <div style="flex:1 1 300px;min-width:0"><p class="section-kicker">BLACK FRIDAY · OPTIONAL MEMBERSHIP</p><h2 id="black-friday-title" style="font-size:clamp(1.8rem,4vw,3.4rem);margin:0 0 16px;color:#f8e6bb">ROYAL PASS + DEVELOPER PACK</h2><p style="color:#c4d1e2;margin:0">Three months of Royal Pass and seven Developer Pack unlocks. Your free account remains available without a purchase.</p></div>
@@ -80,14 +96,10 @@
   <div class="signup-heading"><div><p class="section-kicker">ONE ACCOUNT · THREE WORLDS</p><h2 id="signup-title">YOUR STORY<br><span>STARTS HERE.</span></h2>
   <p>Create a free En-Route account ahead of release. Royal Pass is optional; registration and email verification take place on a dedicated ad-free page.</p></div>
   <div class="signup-promise"><strong>YOUR ACCOUNT STAYS PRIVATE</strong><p>Registration and sign-in pages do not load advertising scripts. The Windows game uses the same En-Route account.</p></div></div>
-  <div class="cta-group"><a class="primary-cta" href="/register.html" aria-label="Create your free En-Route account on an ad-free page"><span class="cta-copy"><b>CREATE YOUR FREE ACCOUNT</b><small>SECURE · NO AD SCRIPTS</small></span><span class="cta-arrow" aria-hidden="true">↗</span></a>
-  <a class="text-action" href="/account/ad-free.html">Already have an account? Account access</a></div>
+  <div class="cta-group"><a class="primary-cta" href="/register.html" aria-label="Create your free En-Route account on an ad-free page"><span class="cta-copy"><b>CREATE YOUR FREE ACCOUNT</b><small>FREE REGISTRATION</small></span><span class="cta-arrow" aria-hidden="true">↗</span></a>
+  <a class="text-action" href="/account/ad-free.html">Already have an account? Sign in</a></div>
  </section>
  <section class="closing wrap" aria-labelledby="closing-title"><span class="crown" aria-hidden="true">♔</span><p class="section-kicker">THE NEXT MOVE IS YOURS</p><h2 id="closing-title">ENTER THE <span>BOARD.</span></h2><p>Three tactical worlds. The Windows release is coming soon.</p><div class="primary-cta closing-cta coming-soon-sign" role="status" aria-label="En-Route Windows release coming soon"><span class="win-icon coming-soon-mark" aria-hidden="true">♔</span><span class="cta-copy"><b>COMING SOON</b><small>THE NEXT MOVE IS NEAR</small></span><span class="coming-soon-spark" aria-hidden="true">✦</span></div></section>
- <aside class="enroute-ad-slot enroute-ad-slot--lower" data-adsterra-zone="home-after-download" aria-label="Advertisement" hidden>
-  <p class="enroute-ad-label">Advertisement</p>
-  <div class="adsterra-slot-content" data-adsterra-mount></div>
- </aside>
 </main>
 <footer class="footer wrap"><span><strong>EN-ROUTE</strong> / BLITZKRIEG</span><span>© 2026 NIQSATURN</span><a href="./privacy.html">PRIVACY</a><a href="#top">BACK TO TOP ↑</a></footer>
 </body>
