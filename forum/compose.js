@@ -1,6 +1,7 @@
 (() => {
 'use strict';
-const BASE='https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
+const BASE=window.EnRouteApiRoot?.replace(/\/api\/?$/,'')||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account';
+const PROOF='enroute-ad-free-receipt-v1',DISPLAY='enroute-account-display-v1';
 const params=new URLSearchParams(location.search);
 const reportRaw=params.get('report');
 const reportId=reportRaw&&/^[1-9]\d{0,7}$/.test(reportRaw)?Number(reportRaw):null;
@@ -78,8 +79,10 @@ loginForm.addEventListener('submit',async event=>{
   // Pass. Only the bounded proof is retained; not the account access token.
   try{
    const adStatus=await request('/api/ads/status','GET',null,bearer);
-   if(adStatus.adFree===true&&typeof adStatus.receipt==='string'&&adStatus.receipt.length<200)
-    localStorage.setItem('enroute-ad-free-receipt-v1',adStatus.receipt);
+   if((adStatus.adFree===true||adStatus.adFree===false)&&typeof adStatus.receipt==='string'&&adStatus.receipt.length<200){
+    localStorage.setItem(PROOF,adStatus.receipt);const display=typeof credentials.username==='string'?credentials.username:name;
+    if(/^[A-Za-z0-9_.-]{3,24}$/.test(display))localStorage.setItem(DISPLAY,display);
+   }
   }catch{/* Posting remains available even when ad-free lookup is unavailable. */}
   username=typeof credentials.username==='string'?credentials.username:name;
   document.querySelector('#forum-signed-in').textContent='SIGNED IN AS '+username;
@@ -143,5 +146,7 @@ title.addEventListener('input',()=>{
  },450);
 });
 window.addEventListener('pagehide',()=>{bearer=null;passwordInputClear();clearTimeout(suggestionTimer);});
+window.addEventListener('storage',e=>{if((e.key===DISPLAY&&e.newValue!==username)||e.key===null){bearer=null;username=null;pendingPublish=false;document.querySelector('#forum-signed-in').textContent='';status(postStatus,'Sign in again before publishing. Your draft is preserved.');}});
+document.querySelector('#forum-login').disabled=false;
 void initialize();
 })();
