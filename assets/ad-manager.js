@@ -6,6 +6,28 @@
  'use strict';
  const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
+ const GOOGLE_CLIENT='ca-pub-7639855617393587';
+ const GOOGLE_URL='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+GOOGLE_CLIENT;
+ let googleLoaded=false,googleConsent=false,googleConsentRegistered=false;
+ function maybeLoadGoogle(){
+  // Only original public homepage content. No forum UGC, auth, payment or desktop renderer.
+  if(googleLoaded||!googleConsent||permission!==true||location.pathname!=='/'||location.protocol!=='https:')return;
+  if(!document.querySelector('meta[name="google-adsense-account"][content="'+GOOGLE_CLIENT+'"]'))return;
+  googleLoaded=true;
+  const script=document.createElement('script');script.async=true;script.crossOrigin='anonymous';script.src=GOOGLE_URL;script.id='enroute-adsense';
+  document.head.append(script);
+ }
+ function registerGoogleConsent(){
+  if(googleConsentRegistered||typeof window.__tcfapi!=='function')return;
+  googleConsentRegistered=true;
+  // Fail closed without a valid certified CMP signal. Google Ads vendor ID 755.
+  window.__tcfapi('addEventListener',2,(tc,ok)=>{
+   if(!ok||!tc||!['tcloaded','useractioncomplete'].includes(tc.eventStatus))return;
+   const granted=tc.gdprApplies===true&&!!tc.tcString&&tc.vendor?.consents?.[755]===true&&[1,3,4].every(id=>tc.purpose?.consents?.[id]===true);
+   if(googleLoaded&&!granted){googleConsent=false;location.reload();return;}
+   googleConsent=granted;maybeLoadGoogle();
+  });
+ }
  const CLASSIC='https://bellnewyork.org/22/';
  const NATIVE='https://bellnewyork.org/21/be1a8a1c143387189d74d1320ee44168';
  const NATIVE_CONTAINER='container-be1a8a1c143387189d74d1320ee44168';
@@ -167,6 +189,7 @@
    return false;
   }
   if(!routeAllowed())return false;
+  registerGoogleConsent();maybeLoadGoogle();
   const zones=allZones().filter(eligible);
   for(const box of zones){
    if(!routeAllowed())return false;
@@ -220,7 +243,7 @@
     const hadVendor=allZones().some(box=>box.querySelector('[data-adsterra-mount]')?.children.length);
     hide();
     // A reload removes already-executed vendor JS from this document.
-    if(hadVendor)location.reload();
+    if(hadVendor||googleLoaded)location.reload();
     return;
    }
    const forum=location.pathname.startsWith('/forum/');
@@ -230,7 +253,8 @@
  window.addEventListener('storage',event=>{
   if(event.key===KEY||event.key===null)void refreshEntitlement(true);
  });
- window.addEventListener('focus',()=>void refreshEntitlement());
+ window.addEventListener('focus',()=>{registerGoogleConsent();void refreshEntitlement();});
+ window.addEventListener('load',registerGoogleConsent);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshEntitlement();});
  window.setInterval(()=>void refreshEntitlement(),STATUS_INTERVAL);
 })();
