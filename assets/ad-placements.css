@@ -8,3 +8,18 @@
 .enroute-ad-slot--forum-bottom{margin-top:35px;margin-bottom:72px}
 @media(max-width:650px){.enroute-ad-slot{padding:13px 16px 8px;margin-top:36px;margin-bottom:34px}.enroute-ad-slot--forum-top{margin-top:14px;margin-bottom:15px}.enroute-ad-slot--feed{margin-top:45px}}
 @media(prefers-reduced-motion:reduce){.enroute-ad-slot{scroll-behavior:auto}}
+
+/* Manual display inventory and unobtrusive privacy controls. */
+.enroute-google-slot{max-width:970px;margin:64px auto 0;padding:16px 12px 12px}
+.google-ad-anchor{min-height:1px;margin:0 auto;width:min(100%,1180px)}
+.enroute-google-slot [data-google-mount]{width:100%;min-width:0;max-width:100%;overflow:hidden}
+.enroute-google-slot ins.adsbygoogle{display:block;width:100%;min-height:90px}
+ins.adsbygoogle[data-ad-status="unfilled"]{display:none!important}
+.enroute-ad-consent[hidden]{display:none!important}
+.enroute-ad-consent{position:relative;z-index:2;max-width:1000px;margin:30px auto;padding:16px 20px;border:1px solid #7186a4;border-radius:10px;background:#142237;display:flex;align-items:center;justify-content:space-between;gap:18px;color:#e8edf8;font:14px/1.6 system-ui}
+.enroute-ad-consent strong{color:#f1d087;font-size:14px}.enroute-ad-consent p{margin:4px 0 0}.enroute-ad-consent a{text-decoration:underline}
+.enroute-consent-actions{display:flex;gap:10px;flex-wrap:wrap}
+.enroute-ad-consent button,.enroute-privacy-toggle{font:700 12px system-ui;min-height:40px;padding:9px 13px;border:1px solid #b4c3db;border-radius:6px;background:#1d2d45;color:#f6f6f3;cursor:pointer;white-space:nowrap}
+.enroute-ad-consent button:focus-visible,.enroute-privacy-toggle:focus-visible{outline:2px solid #f1d087;outline-offset:3px}
+.enroute-privacy-toggle{background:transparent;min-height:36px;font-size:10px}
+@media(max-width:650px){.enroute-google-slot{margin:40px auto 0;padding:12px 10px}.enroute-ad-consent{margin:24px 17px;flex-direction:column;align-items:stretch}.enroute-consent-actions button{flex:1}}
