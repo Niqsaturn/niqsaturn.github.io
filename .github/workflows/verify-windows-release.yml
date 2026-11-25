@@ -1,0 +1,31 @@
+name: Verify En-Route Windows release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'v0.2.25'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RELEASE_TAG: v0.2.25
+      ASSET_NAME: En-Route-0.2.25-Windows-x64-Setup.exe
+      EXPECTED_SIZE: '187612757'
+      EXPECTED_SHA256: eeb5b7d260424d6b63c2c5d314efd132affa8eb3afbb8da3947dc189452c91aa
+    steps:
+      - name: Confirm full public release and verify downloaded bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/Niqsaturn/niqsaturn.github.io/releases/tags/$RELEASE_TAG"
+          curl --fail --silent --show-error --proto '=https' --max-time 30 "$api" -o release.json
+          jq -e --arg tag "$RELEASE_TAG" '.tag_name == $tag and .draft == false and .prerelease == false and .published_at != null' release.json >/dev/null
+          url="https://github.com/Niqsaturn/niqsaturn.github.io/releases/download/$RELEASE_TAG/$ASSET_NAME"
+          jq -e --arg name "$ASSET_NAME" --arg url "$url" --argjson size "$EXPECTED_SIZE" '[.assets[] | select(.name == $name and .browser_download_url == $url and .state == "uploaded" and .size == $size)] | length == 1' release.json >/dev/null
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-time 300 "$url" -o "$ASSET_NAME"
+          test "$(wc -c < "$ASSET_NAME" | tr -d '[:space:]')" = "$EXPECTED_SIZE"
+          printf '%s  %s\n' "$EXPECTED_SHA256" "$ASSET_NAME" | sha256sum --check --strict
+          printf '## Verified public Windows installer\n\n- Tag: `%s`\n- File: `%s`\n- Bytes: `%s`\n- SHA-256: `%s`\n\nPublic download byte verification passed. Website CTA may now be enabled after review.\n' "$RELEASE_TAG" "$ASSET_NAME" "$EXPECTED_SIZE" "$EXPECTED_SHA256" >> "$GITHUB_STEP_SUMMARY"
