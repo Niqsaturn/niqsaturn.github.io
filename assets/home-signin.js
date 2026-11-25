@@ -33,7 +33,7 @@
  trigger.addEventListener('click',event=>{event.preventDefault();close();});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();}});
  const robots=document.querySelector('meta[name=robots]');if(robots)robots.content='noindex,follow';
- const auth=document.createElement('script');auth.src='/account/ad-free.js?v=20261125-2';auth.async=false;
+ const auth=document.createElement('script');auth.src='/account/ad-free.js?v=20261125-6';auth.async=false;
  auth.onload=()=>{if(query.get('forgot')!=='1')document.querySelector('#member-username')?.focus({preventScroll:true});};
  auth.onerror=()=>{const result=document.querySelector('#member-result');if(result)result.textContent='Sign-in could not load. Close this panel and try again.';focusFirst();};
  document.head.append(auth);
