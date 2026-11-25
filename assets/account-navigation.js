@@ -3,7 +3,7 @@
  const KEY='enroute-ad-free-receipt-v1',NAME='enroute-account-display-v1';
  const signin=location.pathname.startsWith('/forum/')?'/?signin=1&return=%2Fforum%2F':'/?signin=1';
  function render(){
-  const nav=document.querySelector('.header nav');if(!nav||new URLSearchParams(location.search).get('signin')==='1')return;
+  const nav=document.querySelector('[data-account-controls]')||document.querySelector('.header nav');if(!nav||new URLSearchParams(location.search).get('signin')==='1')return;
   nav.querySelector('[data-enroute-account-nav]')?.remove();
   let name=null,receipt=null;
   try{name=localStorage.getItem(NAME);receipt=localStorage.getItem(KEY);}catch{}
@@ -17,7 +17,7 @@
    exit.addEventListener('click',()=>{try{localStorage.removeItem(NAME);localStorage.removeItem(KEY);}catch{}location.assign(location.pathname.startsWith('/forum/')?'/forum/':'/');});
    actions.append(profile,exit);menu.append(label,actions);account.append(menu);
   }else{
-   const link=document.createElement('a');link.href=signin;link.textContent='Sign in';account.append(link);
+   const link=document.createElement('a');link.href=signin;link.textContent='Sign in';if(nav.hasAttribute('data-account-controls')){link.setAttribute('aria-expanded','false');}account.append(link);
   }
   nav.append(account);
  }
