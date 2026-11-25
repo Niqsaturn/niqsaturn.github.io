@@ -8,6 +8,8 @@
  if(new URLSearchParams(location.search).get('signin')==='1')return;
  const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
+ const DISPLAY='enroute-account-display-v1';
+ function clearInvalidReceipt(){try{localStorage.removeItem(KEY);localStorage.removeItem(DISPLAY);}catch{}window.dispatchEvent(new Event('enroute-account-display-changed'));}
  const GOOGLE_CLIENT='ca-pub-7639855617393587';
  const GOOGLE_URL='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+GOOGLE_CLIENT;
  const CONSENT_KEY='enroute-ads-consent-v1';
@@ -142,7 +144,7 @@
   if(!receipt)return true;
   // A malformed local value is not a membership entitlement.
   if(!/^v2\.[A-Za-z0-9_-]{70}$/.test(receipt)){
-   try{localStorage.removeItem(KEY);}catch{}
+   clearInvalidReceipt();
    return true;
   }
   try{
@@ -160,7 +162,7 @@
    if(typeof result.receipt==='string'&&/^v2\.[A-Za-z0-9_-]{70}$/.test(result.receipt)){
     if(result.receipt!==receipt)localStorage.setItem(KEY,result.receipt);
    }else if(result.adFree===false){
-    localStorage.removeItem(KEY);
+    clearInvalidReceipt();
    }
    return result.adFree===false;
   }catch{return false;}
