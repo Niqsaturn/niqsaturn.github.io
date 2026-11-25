@@ -8,5 +8,5 @@
  main.className='wrap';main.innerHTML='<section class="home-signin" aria-labelledby="sign-in-heading"><h1 id="sign-in-heading">Sign in</h1><p>Use your En-Route account.</p><form id="member-auth-form" method="post" action="/account/ad-free.html" autocomplete="on"><label>Username<input id="member-username" name="username" autocomplete="username" minlength="3" maxlength="24" required></label><label>Password<input type="password" id="member-password" name="password" autocomplete="current-password" required></label><button type="submit" id="member-check" disabled>Sign in</button></form><div id="member-result" role="status" aria-live="polite"></div><p>New to En-Route? <a href="/register.html">Create an account</a>.</p><p><a id="cancel-home-signin">Cancel</a> · <a href="/privacy.html">Privacy</a></p></section>';
  document.querySelector('#cancel-home-signin').href=back;
  document.title='Sign in | En-Route';
- const auth=document.createElement('script');auth.src='/account/ad-free.js?v=20261124';auth.async=false;document.head.append(auth);
+ const auth=document.createElement('script');auth.src='/account/ad-free.js?v=20261125-1';auth.async=false;document.head.append(auth);
 })();
