@@ -18,6 +18,11 @@ const message=document.querySelector('#forum-message');
 const categoryField=document.querySelector('#category-label'),titleField=document.querySelector('#title-label');
 const postButton=document.querySelector('#forum-submit');
 let bearer=null,username=null,ready=!(replyId||reportId),availableCategories=[],pendingPublish=false;
+async function endSession(){
+ const value=bearer;bearer=null;
+ if(typeof value!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(value))return;
+ try{await fetch(BASE+'/api/auth/logout',{method:'POST',credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',headers:{'Content-Type':'application/json','Authorization':'Bearer '+value},body:'{}',keepalive:true,signal:AbortSignal.timeout(3500)});}catch{/* Never persist the short-lived token. */}
+}
 function updateCounter(){const target=document.querySelector('#forum-message-counter');if(target)target.textContent=message.value.length+' / '+message.maxLength+' characters';}
 message.addEventListener('input',updateCounter);
 function status(el,message){el.textContent=message;}
@@ -74,7 +79,7 @@ loginForm.addEventListener('submit',async event=>{
   const credentials=await request('/api/auth/login','POST',{username:name,password});
   if(typeof credentials.accessToken!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(credentials.accessToken))
    throw Error('Could not establish an authenticated session.');
-  bearer=credentials.accessToken;
+  await endSession();bearer=credentials.accessToken;
   // A forum sign-in also activates website ad-free mode for an active Royal
   // Pass. Only the bounded proof is retained; not the account access token.
   try{
@@ -90,7 +95,7 @@ loginForm.addEventListener('submit',async event=>{
   if(pendingPublish){pendingPublish=false;postForm.requestSubmit();}else message.focus();
   status(loginStatus,'');
  }catch(error){
-  bearer=null;
+  await endSession();
   status(loginStatus,error.message||'Unable to sign in. Please verify your account details.');
  }finally{
   passwordInput.value='';
@@ -118,12 +123,12 @@ postForm.addEventListener('submit',async event=>{
   if(reportId&&data.report?.received!==true)throw Error('The report was not accepted.');
   const id=reportId||replyId||data.topic?.id;
   if(!id)throw Error('The forum did not return a topic ID.');
-  bearer=null;
+  await endSession();
   passwordInputClear();
   status(postStatus,reportId?'Report received privately. Returning to discussion…':'Published. Opening your topic…');
   location.assign('/forum/?topic='+encodeURIComponent(id));
  }catch(error){
-  if(/expired|revoked|authentication required|401/i.test(error.message)){bearer=null;pendingPublish=false;loginPanel.hidden=false;editor.hidden=false;}
+  if(/expired|revoked|authentication required|401/i.test(error.message)){void endSession();pendingPublish=false;loginPanel.hidden=false;editor.hidden=false;}
   status(postStatus,error.message||'Unable to publish. Please try again.');
   button.disabled=false;
  }
@@ -145,8 +150,8 @@ title.addEventListener('input',()=>{
   }catch{if(ticket===suggestionNumber)related.hidden=true;}
  },450);
 });
-window.addEventListener('pagehide',()=>{bearer=null;passwordInputClear();clearTimeout(suggestionTimer);});
-window.addEventListener('storage',e=>{if((e.key===DISPLAY&&e.newValue!==username)||e.key===null){bearer=null;username=null;pendingPublish=false;document.querySelector('#forum-signed-in').textContent='';status(postStatus,'Sign in again before publishing. Your draft is preserved.');}});
+window.addEventListener('pagehide',()=>{void endSession();passwordInputClear();clearTimeout(suggestionTimer);});
+window.addEventListener('storage',e=>{if((e.key===DISPLAY&&e.newValue!==username)||(e.key===PROOF&&!e.newValue)||e.key===null){void endSession();username=null;pendingPublish=false;document.querySelector('#forum-signed-in').textContent='';status(postStatus,'Sign in again before publishing. Your draft is preserved.');}});
 document.querySelector('#forum-login').disabled=false;
 void initialize();
 })();
