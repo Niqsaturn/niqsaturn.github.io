@@ -1,7 +1,7 @@
 (() => {
  'use strict';
  const KEY='enroute-ad-free-receipt-v1',NAME='enroute-account-display-v1';
- const signin=location.pathname.startsWith('/forum/')?'/account/ad-free.html?return=%2Fforum%2F':'/account/ad-free.html';
+ const signin=location.pathname.startsWith('/forum/')?'/?signin=1&return=%2Fforum%2F':'/?signin=1';
  function render(){
   const nav=document.querySelector('.header nav');if(!nav||new URLSearchParams(location.search).get('signin')==='1')return;
   nav.querySelector('[data-enroute-account-nav]')?.remove();
