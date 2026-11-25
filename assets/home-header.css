@@ -1,0 +1,31 @@
+/* Home header: dedicated primary links and account controls. */
+.launch-home .header-inner{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(12px,2vw,28px)}
+.launch-home .header nav.home-primary-nav{display:flex;justify-content:center;align-items:center;gap:clamp(14px,2.2vw,30px);white-space:nowrap;letter-spacing:.06em}
+.launch-home .header nav.home-primary-nav>a{display:inline-flex!important;align-items:center;justify-content:center;padding:9px 0;border:0;border-radius:0;color:#bbc7db;font-size:12px;letter-spacing:.06em}
+.launch-home .header nav.home-primary-nav>a:hover{color:#efd18b}
+.launch-home .header nav.home-account-nav{display:flex!important;align-items:center;justify-content:flex-end;gap:12px;white-space:nowrap}
+.launch-home .header nav.home-account-nav>a.home-signup-link{display:inline-flex!important;align-items:center;min-height:44px;color:#bbc7db;letter-spacing:.06em;font-size:12px}
+.launch-home .header nav.home-account-nav>a[data-enroute-account-nav],.launch-home .header nav.home-account-nav [data-enroute-account-nav]>a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:1px solid #edce8b;border-radius:8px;background:#edce8b;color:#10192a;font:800 13px system-ui;text-transform:none;letter-spacing:0}
+.launch-home .header nav.home-account-nav [aria-expanded=true]{background:#fff0c4}
+.launch-home .header a:focus-visible,.launch-home .header summary:focus-visible,.launch-home .header button:focus-visible,.launch-home .header input:focus-visible{outline:2px solid #f5d68b;outline-offset:3px}
+.launch-home #home-account-panel{position:absolute;top:calc(100% + 8px);right:30px;width:min(360px,calc(100vw - 32px));max-height:calc(100vh - 108px);max-height:calc(100dvh - 108px);overflow:auto;overscroll-behavior:contain;padding:20px;margin:0;background:#101d2e;color:#f3f7ff;border:1px solid #8597b277;border-radius:12px;box-shadow:0 18px 48px #000a;text-align:left;z-index:30;box-sizing:border-box;font:14px/1.5 system-ui;letter-spacing:normal;text-transform:none}
+.launch-home #home-account-panel [hidden]{display:none!important}
+.launch-home #home-account-panel .account-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.launch-home #home-account-panel h2{font:750 22px/1.2 system-ui;margin:0;color:#f3f7ff;letter-spacing:-.02em}
+.launch-home #home-account-panel #reset-heading{font-size:17px;margin:12px 0}
+.launch-home #home-account-panel .account-panel-close{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:6px;color:#c6d3e7;font-size:25px;text-decoration:none}
+.launch-home #home-account-panel .account-panel-close:hover{background:#263850}
+.launch-home #home-account-panel form{display:grid;gap:13px;margin:8px 0 12px}
+.launch-home #home-account-panel label{display:grid;gap:6px;font-size:13px;font-weight:650;color:#e4eafa}
+.launch-home #home-account-panel input{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #8195b6;border-radius:7px;background:#091526;color:#fff;font:16px system-ui;box-sizing:border-box}
+.launch-home #home-account-panel button{min-height:44px;padding:10px 12px;border:0;border-radius:7px;background:#edce8b;color:#10192a;font:800 14px system-ui;cursor:pointer}
+.launch-home #home-account-panel button:disabled{opacity:.55;cursor:wait}
+.launch-home #home-account-panel button.minor{background:transparent;color:#e7cf94;border:1px solid #8195b677}
+.launch-home #home-account-panel .account-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.launch-home #home-account-panel a{color:#f1d797;text-decoration:underline;text-underline-offset:3px}
+.launch-home #home-account-panel #member-result,.launch-home #home-account-panel #reset-result{color:#efddb1;font-size:13px;line-height:1.5}
+.launch-home #home-account-panel #member-result:empty,.launch-home #home-account-panel #reset-result:empty{display:none}
+.launch-home #home-account-panel .account-panel-privacy{font-size:12px;margin:16px 0 0;border-top:1px solid #8195b633;padding-top:10px}
+@media(max-width:1000px){.launch-home .header-inner{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo account" "primary primary";gap:0 12px;padding:12px 20px 6px}.launch-home .header-inner>.logo{grid-area:logo}.launch-home .header nav.home-account-nav{grid-area:account}.launch-home .header nav.home-primary-nav{grid-area:primary;justify-content:space-between;gap:10px;padding:7px 0 0;border-top:1px solid #8195b633;margin-top:12px}.launch-home .header nav.home-primary-nav>a{min-height:40px;font-size:11px}.launch-home #home-account-panel{right:20px;max-height:calc(100dvh - 150px)}}
+@media(max-width:570px){.launch-home .header-inner{padding:10px 16px 4px}.launch-home .header nav.home-account-nav>a.home-signup-link{display:none!important}.launch-home .header nav.home-account-nav>a[data-enroute-account-nav],.launch-home .header nav.home-account-nav [data-enroute-account-nav]>a{padding:9px 14px}.launch-home .header nav.home-primary-nav>a{font-size:10px;letter-spacing:0}.launch-home #home-account-panel{right:16px;padding:16px}}
+@media(max-width:360px){.launch-home .header-inner{gap:0 8px;padding-inline:12px}.launch-home #home-account-panel{right:12px;width:calc(100vw - 24px)}}
