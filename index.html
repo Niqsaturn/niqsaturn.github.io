@@ -22,9 +22,10 @@
 <link rel="stylesheet" href="/styles.css?v=20261124-2">
 <link rel="stylesheet" href="./assets/ad-placements.css">
 <script defer src="/assets/ad-manager.js?v=20261125-2"></script>
-<script defer src="/assets/account-navigation.js?v=20261125-3"></script>
-<script defer src="/assets/home-signin.js?v=20261125-3"></script>
+<script defer src="/assets/account-navigation.js?v=20261125-4"></script>
+<script defer src="/assets/home-signin.js?v=20261125-4"></script>
 <script defer src="./assets/trailer-loader.js"></script>
+<link rel="stylesheet" href="/assets/home-header.css?v=20261125-4">
 
 <meta name="color-scheme" content="dark">
 <style>
@@ -43,7 +44,8 @@
 <header class="header">
  <div class="header-inner">
   <a class="logo" href="#top" aria-label="En-Route Blitzkrieg home"><span class="logo-mark">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
-  <nav aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a><a href="#signup">Create account</a><a data-enroute-account-nav href="/?signin=1">Sign in</a></nav>
+  <nav class="home-primary-nav" aria-label="Page sections"><a href="#trailer">Gameplay</a><a href="#modes">Game modes</a><a href="/forum/">Community forum</a></nav>
+  <nav class="home-account-nav" data-account-controls aria-label="Account"><a class="home-signup-link" href="/register.html">Sign up</a><a data-enroute-account-nav href="/?signin=1" aria-expanded="false">Sign in</a></nav>
 
  </div>
 </header>
