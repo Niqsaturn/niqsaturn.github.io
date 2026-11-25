@@ -4,9 +4,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://en-route.ringtail-anoles.ts.net:8443; form-action 'self'; base-uri 'self'">
 <meta name="theme-color" content="#080e1b"><title>Sign in | En-Route</title>
 <link rel="stylesheet" href="/styles.css?v=20261124-2"><link rel="icon" href="/assets/crown.svg" type="image/svg+xml">
-<script defer src="/account/ad-free.js?v=20261125-1"></script>
+<script defer src="/account/ad-free.js?v=20261125-2"></script>
 <style>
-.member-access{max-width:620px;margin:64px auto 100px;padding:28px 22px;background:#101d2eea;border:1px solid #bdcfeb40;border-radius:16px}
+.member-access [hidden]{display:none!important}.member-access .account-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin:16px 0}.member-access .account-actions a{font-size:14px}.member-access{max-width:480px;margin:64px auto 100px;padding:28px 22px;background:#101d2eea;border:1px solid #bdcfeb40;border-radius:16px}
 .member-access h1{font-size:clamp(2rem,6vw,3.6rem);letter-spacing:-.05em;line-height:1.02;margin:10px 0 20px}
 .member-access h1 span{color:#ead09b}.member-access p{color:#adbed4;font-size:13px;line-height:1.8}
 .member-access form{display:grid;gap:16px;margin:26px 0 14px}
@@ -21,17 +21,33 @@
 </head>
 <body><a class="skip" href="#member-main">Skip to sign in</a>
 <header class="header"><div class="header-inner"><a class="logo" href="/"><span class="logo-mark">♔</span><span class="logo-copy"><b>EN-ROUTE</b><small>BLITZKRIEG</small></span></a>
-<nav><a href="/">Home</a><a href="/forum/">Forum</a><a href="/register.html">Register</a><a data-enroute-account-nav href="/?signin=1">Sign in</a></nav></div></header>
+<nav><a href="/">Home</a><a href="/forum/">Forum</a><a href="/register.html">Sign up</a><a data-enroute-account-nav href="/?signin=1">Sign in</a></nav></div></header>
 <main id="member-main" class="wrap"><section class="member-access">
 <h1>Sign in</h1>
 <p>Use your En-Route username and password.</p>
 <form id="member-auth-form" method="post" action="/account/ad-free.html" autocomplete="on">
-<label>Game-account username<input id="member-username" type="text" name="username" minlength="3" maxlength="24" autocomplete="username" required></label>
-<label>Password<input id="member-password" type="password" name="password" minlength="12" autocomplete="current-password" required></label>
+<label>Username<input id="member-username" type="text" name="username" minlength="3" maxlength="24" autocomplete="username" required></label>
+<label>Password<input id="member-password" type="password" name="password" maxlength="128" autocomplete="current-password" required></label>
 <button id="member-check" type="submit" disabled>Sign in</button>
 </form>
 <div id="member-result" role="status" aria-live="polite"></div>
-<p>New to En-Route? <a href="/register.html">Create an account</a>.</p>
+<div class="account-actions"><a id="forgot-password" href="?forgot=1">Forgot password?</a><a href="/register.html">Sign up</a></div>
+<section id="reset-section" hidden aria-labelledby="reset-heading">
+<h2 id="reset-heading">Reset password</h2>
+<form id="reset-request-form" method="post" action="/account/ad-free.html" autocomplete="on">
+<label>Account email<input type="email" name="email" maxlength="254" autocomplete="email" required></label>
+<button type="submit">Send recovery code</button>
+</form>
+<form id="reset-confirm-form" method="post" action="/account/ad-free.html" hidden autocomplete="off">
+<label>Recovery code<input name="code" minlength="43" maxlength="43" pattern="[A-Za-z0-9_-]{43}" autocomplete="one-time-code" required spellcheck="false"></label>
+<label>New password (15 or more characters)<input type="password" name="password" minlength="15" maxlength="128" autocomplete="new-password" required></label>
+<label>Confirm new password<input type="password" name="passwordConfirmation" minlength="15" maxlength="128" autocomplete="new-password" required></label>
+<button type="submit">Reset password</button>
+<button type="button" class="minor" id="reset-retry">Request a new code</button>
+</form>
+<p id="reset-result" role="status" aria-live="polite"></p>
+<a href="/account/ad-free.html" id="reset-back">Back to sign in</a>
+</section>
 
 <p><a href="/">Home</a> · <a href="/privacy.html">Privacy policy</a></p>
 </section></main><footer class="footer wrap"><span>© 2026 NIQSATURN</span></footer></body></html>
