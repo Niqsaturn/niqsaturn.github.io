@@ -12,7 +12,7 @@
  async function json(url,options){
   const response=await fetch(API+(url.startsWith('/api/')?url.slice(4):url),{credentials:'omit',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(12000),...options});
   const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(data.error||'Membership service unavailable ('+response.status+').');
+  if(!response.ok)throw Error(typeof data.error==='string'?data.error:'Account service unavailable ('+response.status+').');
   return data;
  }
  let token=null;
@@ -26,27 +26,25 @@
  if(!form||!result||!button||!username||!password)return;
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(!form.reportValidity())return;
-  button.disabled=true;status('Signing in and checking your account…');
+  button.disabled=true;status('Signing in…');
   try{
    const login=await json('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.value.trim(),password:password.value})});
    token=login.accessToken;
    if(typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))throw Error('Secure account session could not be established.');
    const displayName=typeof login.account?.username==='string'?login.account.username:typeof login.username==='string'?login.username:username.value.trim();
-   const remember=()=>{if(/^[A-Za-z0-9_.-]{3,24}$/.test(displayName))localStorage.setItem(NAME,displayName);};
    const ent=await json('/api/ads/status',{method:'GET',headers:{'Authorization':'Bearer '+token}});
-   if(typeof ent.receipt==='string'&&/^v2\.[A-Za-z0-9_-]{70}$/.test(ent.receipt)){
-    localStorage.setItem(KEY,ent.receipt);remember();
-    status(ent.adFree===true?'Royal Pass active. Website and forum ads are off.':'Signed in. Royal Pass is optional.');
-    await endSession();location.assign(returnTo);return;
+   if(typeof ent.adFree!=='boolean'||typeof ent.receipt!=='string'||!/^v2\.[A-Za-z0-9_-]{70}$/.test(ent.receipt)||!Number.isFinite(Date.parse(ent.expiresAt))||Date.parse(ent.expiresAt)<=Date.now())
+    throw Error('Account status could not be verified. Please try again.');
+   if(!/^[A-Za-z0-9_.-]{3,24}$/.test(displayName))throw Error('Account name could not be verified.');
+   try{
+    localStorage.setItem(KEY,ent.receipt);
+    localStorage.setItem(NAME,displayName);
+   }catch{
+    try{localStorage.removeItem(KEY);localStorage.removeItem(NAME);}catch{}
+    throw Error('Sign-in preferences could not be saved. Enable site storage and try again.');
    }
-   if(ent.adFree===true&&typeof ent.receipt==='string'&&ent.receipt.length<200){
-    localStorage.setItem(KEY,ent.receipt);remember();
-    await endSession();location.assign(returnTo);return;
-   }
-   if(ent.adFree!==false)throw Error('Account advertising status is unavailable.');
-   localStorage.removeItem(KEY);localStorage.removeItem(NAME);
-   status(ent.billingReady===false?'Signed in. Membership purchases are not active yet.':'Signed in. You can continue with your free account.');
-   await endSession();location.assign(returnTo);
+   status(ent.adFree?'Royal Pass active.':'Account verified.');
+   await endSession();location.assign(returnTo);return;
   }catch(error){status(error?.message||'Account sign-in unavailable. Please try again.');}
   finally{await endSession();password.value='';button.disabled=false;}
  });
