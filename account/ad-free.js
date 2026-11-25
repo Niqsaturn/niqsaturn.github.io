@@ -51,4 +51,48 @@
   finally{await endSession();password.value='';button.disabled=false;}
  });
  button.disabled=false;
+ const resetLink=document.querySelector('#forgot-password');
+ const resetSection=document.querySelector('#reset-section');
+ const requestForm=document.querySelector('#reset-request-form');
+ const confirmForm=document.querySelector('#reset-confirm-form');
+ const resetStatus=document.querySelector('#reset-result');
+ const backLink=document.querySelector('#reset-back');
+ if(!resetLink||!resetSection||!requestForm||!confirmForm||!resetStatus||!backLink)return;
+ function openReset(){
+  form.hidden=true;form.style.display='none';result.hidden=true;resetLink.hidden=true;
+  password.value='';resetSection.hidden=false;requestForm.hidden=false;confirmForm.hidden=true;
+  resetStatus.textContent='';requestForm.elements.email.focus();
+ }
+ function closeReset(){
+  resetSection.hidden=true;requestForm.reset();confirmForm.reset();resetStatus.textContent='';
+  form.hidden=false;form.style.display='';result.hidden=false;resetLink.hidden=false;username.focus();
+ }
+ resetLink.addEventListener('click',event=>{event.preventDefault();openReset();});
+ backLink.addEventListener('click',event=>{event.preventDefault();closeReset();});
+ requestForm.addEventListener('submit',async event=>{
+  event.preventDefault();if(!requestForm.reportValidity())return;
+  const submit=requestForm.querySelector('button[type=submit]');submit.disabled=true;
+  resetStatus.textContent='Requesting a recovery code…';
+  try{
+   await json('/api/auth/reset/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:requestForm.elements.email.value.trim()})});
+   requestForm.reset();requestForm.hidden=true;confirmForm.hidden=false;
+   resetStatus.textContent='If that email is associated with an account, a recovery code will be sent. Check your inbox and spam folder.';
+   confirmForm.elements.code.focus();
+  }catch{resetStatus.textContent='Recovery is temporarily unavailable. Please try again later.';}
+  finally{submit.disabled=false;}
+ });
+ confirmForm.addEventListener('submit',async event=>{
+  event.preventDefault();if(!confirmForm.reportValidity())return;
+  const fields=confirmForm.elements;
+  if(fields.password.value!==fields.passwordConfirmation.value){resetStatus.textContent='Passwords do not match.';return;}
+  const submit=confirmForm.querySelector('button[type=submit]');submit.disabled=true;
+  try{
+   await json('/api/auth/reset/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:fields.code.value.trim(),password:fields.password.value,passwordConfirmation:fields.passwordConfirmation.value})});
+   try{localStorage.removeItem(KEY);localStorage.removeItem(NAME);}catch{}
+   closeReset();status('Password reset. Sign in with your new password.');
+  }catch{resetStatus.textContent='The recovery code is invalid, expired, or the service is unavailable. Check the code or request a new one.';}
+  finally{fields.password.value='';fields.passwordConfirmation.value='';submit.disabled=false;}
+ });
+ document.querySelector('#reset-retry')?.addEventListener('click',()=>{confirmForm.reset();confirmForm.hidden=true;requestForm.hidden=false;resetStatus.textContent='';requestForm.elements.email.focus();});
+ if(new URLSearchParams(location.search).get('forgot')==='1')openReset();
 })();
