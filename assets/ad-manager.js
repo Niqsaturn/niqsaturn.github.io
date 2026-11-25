@@ -138,8 +138,13 @@
  function reset(){allZones().forEach(el=>{el.hidden=true;el.dataset.adsterraReady='false';});}
  async function mayShowAds(){
   let receipt=null;
-  try{receipt=localStorage.getItem(KEY);}catch{return false;}
+  try{receipt=localStorage.getItem(KEY);}catch{return true;}
   if(!receipt)return true;
+  // A malformed local value is not a membership entitlement.
+  if(!/^v2\.[A-Za-z0-9_-]{70}$/.test(receipt)){
+   try{localStorage.removeItem(KEY);}catch{}
+   return true;
+  }
   try{
    const response=await fetch(API+'/ads/verify',{
     method:'POST',mode:'cors',credentials:'omit',redirect:'error',cache:'no-store',
