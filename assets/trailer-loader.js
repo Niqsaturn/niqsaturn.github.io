@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  if(new URLSearchParams(location.search).get('signin')==='1')return;
   const player = document.querySelector('[data-trailer-player]');
   const status = document.querySelector('[data-trailer-status]');
   if (!player) return;
