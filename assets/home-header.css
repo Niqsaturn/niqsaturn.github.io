@@ -29,3 +29,9 @@
 @media(max-width:1000px){.launch-home .header-inner{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"logo account" "primary primary";gap:0 12px;padding:12px 20px 6px}.launch-home .header-inner>.logo{grid-area:logo}.launch-home .header nav.home-account-nav{grid-area:account}.launch-home .header nav.home-primary-nav{grid-area:primary;justify-content:space-between;gap:10px;padding:7px 0 0;border-top:1px solid #8195b633;margin-top:12px}.launch-home .header nav.home-primary-nav>a{min-height:40px;font-size:11px}.launch-home #home-account-panel{right:20px;max-height:calc(100dvh - 150px)}}
 @media(max-width:570px){.launch-home .header-inner{padding:10px 16px 4px}.launch-home .header nav.home-account-nav>a.home-signup-link{display:none!important}.launch-home .header nav.home-account-nav>a[data-enroute-account-nav],.launch-home .header nav.home-account-nav [data-enroute-account-nav]>a{padding:9px 14px}.launch-home .header nav.home-primary-nav>a{font-size:10px;letter-spacing:0}.launch-home #home-account-panel{right:16px;padding:16px}}
 @media(max-width:360px){.launch-home .header-inner{gap:0 8px;padding-inline:12px}.launch-home #home-account-panel{right:12px;width:calc(100vw - 24px)}}
+
+/* A modal sign-in view leaves the homepage visible but prevents background browsing. */
+.launch-home.home-auth-open{overflow:hidden}
+.launch-home .home-auth-backdrop{position:fixed;inset:0;background:rgba(3,8,17,.55);z-index:3;cursor:default}
+.launch-home.home-auth-open #home-account-panel{outline:none}
+.launch-home.home-auth-open .header{z-index:4}
