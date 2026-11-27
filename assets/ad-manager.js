@@ -9,7 +9,7 @@
  const API=window.EnRouteApiRoot||'https://en-route.ringtail-anoles.ts.net:8443/enroute-account/api';
  const KEY='enroute-ad-free-receipt-v1';
  const DISPLAY='enroute-account-display-v1';
- function clearInvalidReceipt(){try{localStorage.removeItem(KEY);localStorage.removeItem(DISPLAY);}catch{}window.dispatchEvent(new Event('enroute-account-display-changed'));}
+ function clearInvalidReceipt(){try{localStorage.removeItem(KEY);if(!(Number(localStorage.getItem('enroute-web-session-until-v1'))>Date.now()))localStorage.removeItem(DISPLAY);}catch{}window.dispatchEvent(new Event('enroute-account-display-changed'));}
  const GOOGLE_CLIENT='ca-pub-7639855617393587';
  const GOOGLE_URL='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+GOOGLE_CLIENT;
  const CONSENT_KEY='enroute-ads-consent-v1';
