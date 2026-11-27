@@ -22,6 +22,8 @@
   nav.append(account);
  }
  window.addEventListener('enroute-account-display-changed',render);
+ window.addEventListener('focus',render);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
  window.addEventListener('storage',e=>{if(e.key===KEY||e.key===NAME||e.key===UNTIL||e.key===null)render();});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();
