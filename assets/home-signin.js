@@ -16,7 +16,7 @@
  document.body.classList.add('home-auth-open');
  const backdrop=document.createElement('div');backdrop.className='home-auth-backdrop';backdrop.setAttribute('aria-hidden','true');document.body.append(backdrop);
  for(const node of document.querySelectorAll('main,footer,.header-inner>.logo,.home-primary-nav,.home-signup-link,.skip'))node.inert=true;
- const focusables=()=>[...panel.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.getClientRects().length>0);
+ const focusables=()=>[...panel.querySelectorAll('a[href],button,input,select,textarea,iframe,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.getClientRects().length>0);
  function focusFirst(){(focusables()[0]||panel).focus({preventScroll:true});}
  panel.tabIndex=-1;
  backdrop.addEventListener('click',close);
@@ -33,6 +33,14 @@
  trigger.addEventListener('click',event=>{event.preventDefault();close();});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();}});
  const robots=document.querySelector('meta[name=robots]');if(robots)robots.content='noindex,follow';
+ if(query.get('forgot')!=='1'&&query.get('legacy')!=='1'&&window.EnRouteProtected){
+  for(const el of panel.querySelectorAll('#member-auth-form,#member-result,.account-actions,#reset-section'))el.remove();
+  const holder=document.createElement('div');holder.className='protected-account-holder';
+  panel.querySelector('.account-panel-privacy').before(holder);
+  const alternate=document.createElement('a');alternate.className='protected-account-fallback';const target=new URL('/',location.origin);target.searchParams.set('signin','1');target.searchParams.set('legacy','1');if(query.get('return')==='/forum/')target.searchParams.set('return','/forum/');alternate.href=target.pathname+target.search;alternate.textContent='Use alternate sign-in';holder.after(alternate);
+  const frame=window.EnRouteProtected.mount(holder,{onSignedIn:close,onSignedOut:close,onClose:close});
+  frame?.focus({preventScroll:true});return;
+ }
  const auth=document.createElement('script');auth.src='/account/ad-free.js?v=20261125-6';auth.async=false;
  auth.onload=()=>{if(query.get('forgot')!=='1')document.querySelector('#member-username')?.focus({preventScroll:true});};
  auth.onerror=()=>{const result=document.querySelector('#member-result');if(result)result.textContent='Sign-in could not load. Close this panel and try again.';focusFirst();};
